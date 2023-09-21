@@ -1,0 +1,25 @@
+This example shows that the Gap feature as calculated is actually NOT a straightforward linear combination of the 
+leftedge, rightedge and homologyLength. Actually, knowing the closest possible locations of the edges to the cutsite 
+does not allow you to accurately calculate the gap. You can see this in the examples below. The main problem is that
+when you have multiple options, you don't know which way the homology should go, and therefore it's hard to calculate 
+a straightforward formula. You need to have non linear conditional checks etc.
+
+Note there is no pattern for when the breaks are on either side of the cutsite indicating what correction to make, there's always a counter example
+
+GATGGGTCGGTAATGACTTGTCGTCGACGCTGTAAACAA|TCGCGGTGCGCTCCAATCGTCACACCTACATCGCCCGGGG 42     gap le  re  lsign  rsign    sum re-le   hl          
+
+GATGGGTCGGTAATGACTTGTCGTCGACGCTGTAAACAA|TC--GGTGCGCTCCAATCGTCACACCTACATCGCCCGGGG 2+2    1   +1  +2  +1      +1      +2  1       1           
+
+GATGGGTCGGTAATGACTTGTCGTCGACGCTGTAAA---|TCGCGGTGCGCTCCAATCGTCACACCTACATCGCCCGGGG -3+3   1   -3  0   -1      0       -1  3       2   wrong
+
+GATGGGTCGGTAATGACTTGTCGTCGACGCTGTAAACAA|---------------ATCGTCACACCTACATCGCCCGGGG 0+15   13  0   +13 0       +1      +1  13      1
+
+GATGGGTCGGTAATGACTTGTCGTCGACGCTGT------|-CGCGGTGCGCTCCAATCGTCACACCTACATCGCCCGGGG -6+7   6   -6  0   -1      0       -1  6       1
+
+GATGGGTCGGTAATGACTTGTCGTCGACGCTGTA--CAA|TCGCGGTGCGCTCCAATCGTCACACCTACATCGCCCGGGG -5+2   1   -5  -3  -1      -1      -2  2       1   wrong
+
+GATGGGTCGGTAATGACTTGTCGTCGACGCTGTAAAC--|--GCGGTGCGCTCCAATCGTCACACCTACATCGCCCGGGG -2+4   2   -2  +1  -1      +1      0   3       1   wrong
+
+
+GATGGGTCGGTAATGACTTGTCGTCGACGCTGTAAACTA|ACGCGGTGCGCTCCAATCGTCACACCTACATCGCCCGGGG
+GATGGGTCGGTAATGACTTGTCGTCGACGCTGTAAACTA|-CGCGGTGCGCTCCAATCGTCACACCTACATCGCCCGGGG 0+1    0   0   0   0   0       0

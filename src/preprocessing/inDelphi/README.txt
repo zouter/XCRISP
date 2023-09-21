@@ -1,0 +1,1 @@
+This directory contains scripts to process the raw inDelphi data so that it is ready to be mapped by the Tijsterman Analyser

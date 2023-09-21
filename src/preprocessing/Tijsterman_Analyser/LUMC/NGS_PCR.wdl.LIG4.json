@@ -1,0 +1,4 @@
+{
+  "NGS_PCR.samples": "/scratch/cfseale/repos/repair-outcome-prediction/local/data/LUMC/LIG4.txt",
+  "NGS_PCR.outputFile": "output.txt"
+}

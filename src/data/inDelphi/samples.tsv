@@ -1,0 +1,7 @@
+Sample Accession	Run Accession	FASTQ Aspera	Sample Alias
+SAMN08955967	SRR7039773	fasp.sra.ebi.ac.uk:/vol1/fastq/SRR703/003/SRR7039773/SRR7039773_1.fastq.gz;fasp.sra.ebi.ac.uk:/vol1/fastq/SRR703/003/SRR7039773/SRR7039773_2.fastq.gz	1027-mESC-Lib1-Cas9-Tol2-Biorep1-techrep1
+SAMN08955971	SRR7039777	fasp.sra.ebi.ac.uk:/vol1/fastq/SRR703/007/SRR7039777/SRR7039777_1.fastq.gz;fasp.sra.ebi.ac.uk:/vol1/fastq/SRR703/007/SRR7039777/SRR7039777_2.fastq.gz	0105-mESC-Lib1-Cas9-Tol2-BioRep2-techrep1
+SAMN08955972	SRR7039778	fasp.sra.ebi.ac.uk:/vol1/fastq/SRR703/008/SRR7039778/SRR7039778_1.fastq.gz;fasp.sra.ebi.ac.uk:/vol1/fastq/SRR703/008/SRR7039778/SRR7039778_2.fastq.gz	0105-mESC-Lib1-Cas9-Tol2-BioRep3-techrep1
+SAMN08955974	SRR7039776	fasp.sra.ebi.ac.uk:/vol1/fastq/SRR703/006/SRR7039776/SRR7039776_1.fastq.gz;fasp.sra.ebi.ac.uk:/vol1/fastq/SRR703/006/SRR7039776/SRR7039776_2.fastq.gz	0226-PRLmESC-Lib1-Cas9
+SAMN09689450	SRR7536407	fasp.sra.ebi.ac.uk:/vol1/fastq/SRR753/007/SRR7536407/SRR7536407_1.fastq.gz;fasp.sra.ebi.ac.uk:/vol1/fastq/SRR753/007/SRR7536407/SRR7536407_2.fastq.gz	052218-U2OS-+-LibA-postCas9-rep2
+SAMN09689449	SRR7536427	fasp.sra.ebi.ac.uk:/vol1/fastq/SRR753/007/SRR7536427/SRR7536427_1.fastq.gz;fasp.sra.ebi.ac.uk:/vol1/fastq/SRR753/007/SRR7536427/SRR7536427_2.fastq.gz	052218-U2OS-+-LibA-postCas9-rep1
