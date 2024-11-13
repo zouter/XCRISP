@@ -1,0 +1,1 @@
+mpiexec -n $1 python 1b.calculating_homology.py
