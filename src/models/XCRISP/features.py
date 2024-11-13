@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from Bio.SeqUtils import GC
 from scipy.stats import rankdata
-from src.models.X-CRISP.indels import gen_indels_v3
+from src.models.XCRISP.indels import gen_indels_v3
 
 BASE_FEATURES = ["Size", "Start", "leftEdge", "leftEdgePositive", "rightEdge", "numRepeats", "homologyLength", "leftEdgeMostDownstream", "rightEdgeMostUpstream"]
 EXTRA_HOMOLOGY_FEATURES = ["homologyGCContent", "homologyDistanceRank", "homologyLeftEdgeRank", "homologyRightEdgeRank", "homologyLengthRank", "homologyNearPosition", "homologyFarPosition", "homologyGap"]
