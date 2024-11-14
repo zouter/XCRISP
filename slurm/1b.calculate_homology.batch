@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=1.transfer
+#SBATCH --job-name=1.calculate_homology
 #SBATCH --output=/tudelft.net/staff-umbrella/protonddr/logs/slurm-%j.out
 #SBATCH --error=/tudelft.net/staff-umbrella/protonddr/logs/slurm-%j.err
 #SBATCH --time=05:00:00
