@@ -1,6 +1,9 @@
-from Bio import SeqIO, pairwise2
+from Bio import SeqIO
+from Bio.Align import PairwiseAligner
 from mpi4py import MPI
 import numpy as np
+import pandas as pd
+import os
 
 def get_sequence_with_flank_lengths(sequence, pam_index, left_flank_len, right_flank_len, include_spacer=False):
     l = sequence[pam_index-left_flank_len:pam_index]
@@ -37,8 +40,10 @@ def read_fasta(file_path):
 
 def smith_waterman_score(seq1, seq2):
     """Calculate the Smith-Waterman alignment score for two sequences."""
-    alignments = pairwise2.align.localxx(seq1, seq2)
-    return alignments[0][2] if alignments else 0  # Return best alignment score or 0
+    aligner = PairwiseAligner()
+    aligner.mode = 'local'
+    alignment = aligner.align(seq1, seq2)
+    return alignment.score
 
 def main():
     # Initialize MPI
@@ -47,10 +52,10 @@ def main():
     size = comm.Get_size()
 
     # Define the file path to your FASTA file
-    file_paths =  ['/Users/colm/repos/repair-outcome-prediction/local/data/inDelphi/train.fasta',
-                   '/Users/colm/repos/repair-outcome-prediction/local/data/inDelphi/train.fasta', 
-                   '/Users/colm/repos/repair-outcome-prediction/local/data/FORECasT/train.fasta',
-                   '/Users/colm/repos/repair-outcome-prediction/local/data/FORECasT/test.fasta']
+    file_paths =  [f'{os.environ["PROTONDDR"]}/repos/repair-outcome-prediction/local/data/inDelphi/train.fasta',
+                   f'{os.environ["PROTONDDR"]}/repos/repair-outcome-prediction/local/data/inDelphi/test.fasta', 
+                   f'{os.environ["PROTONDDR"]}/repos/repair-outcome-prediction/local/data/FORECasT/train.fasta',
+                   f'{os.environ["PROTONDDR"]}/repos/repair-outcome-prediction/local/data/FORECasT/test.fasta']
     
     # Master process reads the file and distributes sequences
     if rank == 0:
@@ -58,9 +63,15 @@ def main():
         for fp in file_paths:
             sequences += read_fasta(fp)
         n = len(sequences)
+        print("Sample sequences:")
+        for s in sequences[:5]:
+            print(s)
+        print("\n")
+
         # Generate all unique pairs of indices for pairwise comparison
         pairs = [(i, j) for i in range(n) for j in range(i + 1, n)]
         num_pairs = len(pairs)
+        print("Generating all pairwise combos")
     else:
         sequences = None
         pairs = None
@@ -91,7 +102,7 @@ def main():
         score = smith_waterman_score(sequences[i][1], sequences[j][1])
         id1 = sequences[i][0]
         id2 = sequences[j][0]
-        local_scores[id1, id2] = score
+        local_scores[(id1, id2)] = score
     print(f"Rank {rank} working on {len(pair_chunk)} pairs")
 
     # Gather all scores at the root process
@@ -103,8 +114,26 @@ def main():
         # all_scores = [score for sublist in all_scores for score in sublist]
         # for (i, j), score in all_scores:
         #     print(f"Score between sequence {i} and sequence {j}: {score}")
+        data = {}
+        for d in all_scores:
+            data.update(d)
 
-        print(all_scores[0])
+        # Step 1: Convert to DataFrame, with tuples split into two columns
+        df = pd.DataFrame(list(data.items()), columns=['Tuple', 'Value'])
+        df[['Target1', 'Target2']] = pd.DataFrame(df['Tuple'].tolist(), index=df.index)
+        df = df.drop(columns='Tuple')
+
+        # Step 2: Pivot the DataFrame to get the desired format
+        result_df = df.pivot(index='Target1', columns='Target2', values='Value')
+
+        # Step 1: Count non-NaN values in each row
+        result_df['NonNaNCount'] = result_df.isna().sum(axis=1)
+        sorted_df = result_df.sort_values('NonNaNCount', ascending=False).drop(columns='NonNaNCount')
+        sorted_df = sorted_df.T
+        sorted_df['NonNaNCount'] = sorted_df.isna().sum(axis=1)
+        sorted_df = sorted_df.sort_values('NonNaNCount', ascending=False).drop(columns='NonNaNCount')
+
+        sorted_df.to_csv(f"{os.environ['PROTONDDR']}/repos/x-crisp/data/processed/alignment.tsv", sep="\t")
 
 if __name__ == "__main__":
     main()
