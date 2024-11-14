@@ -20,7 +20,7 @@ case "$1" in
             --env OUTPUT_DIR=$OUTPUT_DIR \
             -B $OUTPUT_DIR:$OUTPUT_DIR \
             containers/lab.sif \
-            /home/dsbpredict/miniconda3/envs/X-CRISP/bin/python3 -m src.models.XCRISP.transfer $3 $4 $5 $6 
+            /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.XCRISP.transfer $3 $4 $5 $6 
         else
             echo "Environment variable does not contain 'hpc'"
             apptainer exec -C \
@@ -28,7 +28,7 @@ case "$1" in
             --env OUTPUT_DIR=$OUTPUT_DIR \
             -B $OUTPUT_DIR:$OUTPUT_DIR \
             containers/lab.sif \
-            /home/dsbpredict/miniconda3/envs/X-CRISP/bin/python3 -m src.models.XCRISP.transfer pretrained 5 HAP1_train HAP1
+            /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.XCRISP.transfer pretrained 5 HAP1_train HAP1
         fi
         ;;
     "test_transfer")
@@ -40,7 +40,7 @@ case "$1" in
             --env OUTPUT_DIR=$OUTPUT_DIR \
             -B $OUTPUT_DIR:$OUTPUT_DIR \
             containers/lab.sif \
-            /home/dsbpredict/miniconda3/envs/X-CRISP/bin/python3 -m src.models.XCRISP.test_transfer $3 $4 
+            /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.XCRISP.test_transfer $3 $4 
         else
             echo "Environment variable does not contain 'hpc'"
             apptainer exec -C \
@@ -48,7 +48,7 @@ case "$1" in
             --env OUTPUT_DIR=$OUTPUT_DIR \
             -B $OUTPUT_DIR:$OUTPUT_DIR \
             containers/lab.sif \
-            /home/dsbpredict/miniconda3/envs/X-CRISP/bin/python3 -m src.models.XCRISP.test_transfer pretrained 5 
+            /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.XCRISP.test_transfer pretrained 5 
         fi
         ;;
     *)
