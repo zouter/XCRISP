@@ -11,6 +11,15 @@
 
 echo "executing program: $1"
 case "$1" in
+    "alignment_scores")
+        echo "Running alignment scores"
+        apptainer exec --nv -C  \
+        -H $PROTONDDR/repos/x-crisp/ \
+        --env PROTONDDR=$PROTONDDR \
+        -B $PROTONDDR:$PROTONDDR \
+        containers/lab.sif \
+        mpiexec -n $2 /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.analysis.1b.calculating_homology 
+        ;;
     "transfer")
         echo "Running transfer learning training"
         if [[ "$2" == *hpc* ]]; then
