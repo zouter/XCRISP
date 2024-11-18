@@ -4,6 +4,7 @@ from mpi4py import MPI
 import numpy as np
 import pandas as pd
 import os
+import random
 
 def get_sequence_with_flank_lengths(sequence, pam_index, left_flank_len, right_flank_len, include_spacer=False):
     l = sequence[pam_index-left_flank_len:pam_index]
@@ -24,8 +25,9 @@ def read_fasta(file_path):
             continue
         pam_index = int(description[1])
         sequence = str(record.seq)
+        sequence = correct_sequence(id, sequence)
         left_flank_len = 30
-        right_flank_len = 25
+        right_flank_len = 30
         after = get_sequence_with_flank_lengths(sequence, 
                                                 pam_index, 
                                                 left_flank_len, 
@@ -34,8 +36,8 @@ def read_fasta(file_path):
         sequences.append((id, after))  # Convert Seq object to string
 
         # limit strings for testing
-        # if len(sequences) > 5:
-        #     break
+        if len(sequences) > 5:
+            break
     return sequences
 
 def smith_waterman_score(seq1, seq2):
@@ -44,6 +46,12 @@ def smith_waterman_score(seq1, seq2):
     aligner.mode = 'local'
     alignment = aligner.align(seq1, seq2)
     return alignment.score
+
+def correct_sequence(id, sequence):
+    if "Oligo" not in id:
+        # sequence = "GTCAT" + sequence + "AGATCGGAAG"
+        sequence = sequence + "AGATC"
+    return sequence
 
 def main():
     # Initialize MPI
@@ -64,7 +72,7 @@ def main():
             sequences += read_fasta(fp)
         n = len(sequences)
         print("Sample sequences:")
-        for s in sequences[:5]:
+        for s in random.sample(sequences, 5):
             print(s)
         print("\n")
 
