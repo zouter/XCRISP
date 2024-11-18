@@ -25,7 +25,7 @@ def read_fasta(file_path):
             continue
         pam_index = int(description[1])
         sequence = str(record.seq)
-        sequence = correct_sequence(id, sequence)
+        sequence, pam_index = correct_sequence(id, sequence, pam_index)
         left_flank_len = 30
         right_flank_len = 30
         after = get_sequence_with_flank_lengths(sequence, 
@@ -47,11 +47,11 @@ def smith_waterman_score(seq1, seq2):
     alignment = aligner.align(seq1, seq2)
     return alignment.score
 
-def correct_sequence(id, sequence):
+def correct_sequence(id, sequence, pam_index):
     if "Oligo" not in id:
-        # sequence = "GTCAT" + sequence + "AGATCGGAAG"
-        sequence = sequence + "AGATC"
-    return sequence
+        sequence = "GTCAT" + sequence + "AGATCGGAAG"
+        pam_index + 5
+    return sequence, pam_index
 
 def main():
     # Initialize MPI
