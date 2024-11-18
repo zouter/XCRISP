@@ -36,8 +36,8 @@ def read_fasta(file_path):
         sequences.append((id, after))  # Convert Seq object to string
 
         # limit strings for testing
-        if len(sequences) > 5:
-            break
+        # if len(sequences) > 5:
+        #     break
     return sequences
 
 def smith_waterman_score(seq1, seq2):
