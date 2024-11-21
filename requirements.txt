@@ -15,7 +15,7 @@ pandas<2.0.0
 torch
 torchsummary
 shap
-scikit-learn
+scikit-learn==1.0.2
 mpi4py
 matplotlib
 seaborn
