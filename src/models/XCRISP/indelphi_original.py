@@ -17,9 +17,8 @@ from sklearn.model_selection import KFold, train_test_split
 from features import DELETION_FEATURES
 from model import _to_tensor, init_weights, NoExperimentDefined, InvalidExperiment
 
-sys.path.append("../")
-from data_loader import get_common_samples
-from test_setup import MIN_NUMBER_OF_READS
+from src.data.data_loader import get_common_samples
+from src.config.test_setup import MIN_NUMBER_OF_READS
 
 # set global vars
 TRAIN_DATASET = "train"
@@ -274,7 +273,7 @@ def test(X_mh, y_mh, y_mh_less, samples, model):
     return metric1, metric2, metric3
 
 def load_model(experiment_name="inDelphi", min_num_reads=MIN_READS_PER_TARGET):
-    model_d = "./models/{}x_inDelphi.pth".format(min_num_reads)
+    model_d = "./src/models/XCRISP/models/{}x_inDelphi.pth".format(min_num_reads)
     model = torch.load(model_d)
     return model
 

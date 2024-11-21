@@ -20,6 +20,7 @@ REP2_COUNTS_F = os.environ["OUTPUT_DIR"] + "/model_predictions/OurModel/replicat
 mESC_WT_COUNTS_F = os.environ["OUTPUT_DIR"] + "/model_predictions/OurModel/mESC_WT_{}.pkl"
 CRISPRedict_PREDICTIONS_F = os.environ["OUTPUT_DIR"] + "/model_predictions/OurModel/model_v4_kld_{}.pkl"
 CRISPRedict_MSE_PREDICTIONS_F = os.environ["OUTPUT_DIR"] + "/model_predictions/OurModel/model_1_v4_RS_1_{}.pkl"
+INDELPHI_PREDICTIONS_F = os.environ["OUTPUT_DIR"] + "/model_predictions/OurModel/predictions_{}x_{}_indelphi.pkl"
 LINDEL_PREDICTIONS_F = os.environ["OUTPUT_DIR"] + "/model_predictions/Lindel/predictions_{}x_{}.pkl"
 FORECasT_PREDICTIONS_F = os.environ["OUTPUT_DIR"] + "/model_predictions/FORECasT/predictions_{}x_{}.pkl"
 TRANSFER_PREDICTIONS_F = os.environ["OUTPUT_DIR"] + "/model_predictions/OurModel/transfer_kld_{}_{}_RS_1_{}.pkl"
@@ -41,16 +42,17 @@ for i, t in enumerate(TEST_FILES):
     # #     data[t]["mESC WT"] = pkl.load(open(mESC_WT_COUNTS_F.format(t), 'rb'))
     data[t]["Lindel"] = pkl.load(open(LINDEL_PREDICTIONS_F.format(MIN_NUM_READS, t), 'rb'))
     data[t]["FORECasT"] = pkl.load(open(FORECasT_PREDICTIONS_F.format(MIN_NUM_READS, t), 'rb'))
+    data[t]["inDelphi"] = pkl.load(open(INDELPHI_PREDICTIONS_F.format(MIN_NUM_READS, t), 'rb'))
 
     # need to remove psuedocounts that were added to profiles in preparation for training
     for target_site in data[t]["FORECasT"].keys():
         data[t]["FORECasT"][target_site]["actual"] = np.array(data[t]["FORECasT"][target_site]["actual"]) - 0.5
 
-    # print("loaded baselines for " + t)
-    # for mode in ["pretrained", "baseline", "pretrainedsamearch", "pretrainedplusonelayer", "pretrainedonefrozenlayer",  "weightinit"]:
-    #     for num_samples in [2, 5, 10, 20, 50, 100, 200, 500]:
-    #         data[t]["transfer_{}_{}".format(mode, num_samples)] = pkl.load(open(TRANSFER_PREDICTIONS_F.format(mode, num_samples, t), 'rb'))
-    # print("loaded transfer models for " + t)
+    print("loaded baselines for " + t)
+    for mode in ["pretrained", "baseline", "pretrainedsamearch", "pretrainedplusonelayer", "pretrainedonefrozenlayer",  "weightinit"]:
+        for num_samples in [2, 5, 10, 20, 50, 100, 200, 500]:
+            data[t]["transfer_{}_{}".format(mode, num_samples)] = pkl.load(open(TRANSFER_PREDICTIONS_F.format(mode, num_samples, t), 'rb'))
+    print("loaded transfer models for " + t)
 
 models = list(data[t].keys())
 
@@ -62,10 +64,12 @@ for t in TEST_FILES:
 
 common_oligos = {}
 for t in TEST_FILES:
-    t1 = np.array(list(data[t]["CRISPRedict"].keys()))
-    t3 = np.array(list(data[t]["Lindel"].keys()))
-    t4 = np.array(list(data[t]["FORECasT"].keys()))
-    common_oligos[t] = reduce(np.intersect1d, (t1, t3, t4))
+    all_t = []
+    all_t.append(np.array(list(data[t]["CRISPRedict"].keys())))
+    all_t.append(np.array(list(data[t]["inDelphi"].keys())))
+    all_t.append(np.array(list(data[t]["Lindel"].keys())))
+    all_t.append(np.array(list(data[t]["FORECasT"].keys())))
+    common_oligos[t] = reduce(np.intersect1d, all_t)
     print(len(common_oligos[t]))
 
 # reformat FORECasT indels
@@ -131,9 +135,9 @@ for t in TEST_FILES:
                 print(target_site, method)
 
             indels = np.array(data[t][method][target_site]["indels"]) 
-            predicted = np.array(data[t][method][target_site]["predicted"]).astype(np.float) # Q
+            predicted = np.array(data[t][method][target_site]["predicted"]).astype(float) # Q
             predicted = predicted/sum(predicted)
-            observed = np.array(data[t][method][target_site]["actual"]).astype(np.float)
+            observed = np.array(data[t][method][target_site]["actual"]).astype(float)
             observed = observed/sum(observed) # P
             indices.append((test_f, method, target_site))
             correlation = np.corrcoef(predicted, observed)[0,1]
@@ -168,8 +172,8 @@ for t in TEST_FILES:
                 mh = np.array(data[t][method][target_site]["mh"] + ([False] * 21)) 
             else:
                 mh = np.array(data[t][method][target_site]["mh"])
-            predicted = np.array(data[t][method][target_site]["predicted"])[mh].astype(np.float) # Q
-            observed = np.array(data[t][method][target_site]["actual"])[mh].astype(np.float) # P
+            predicted = np.array(data[t][method][target_site]["predicted"])[mh].astype(float) # Q
+            observed = np.array(data[t][method][target_site]["actual"])[mh].astype(float) # P
 
             predicted = predicted/sum(predicted)
             observed = observed/sum(observed)
@@ -205,8 +209,8 @@ for t in TEST_FILES:
                 mh = np.array(data[t][method][target_site]["mh"])
             mhless = np.invert(mh)
             mhless_deletions = deletions & mhless
-            predicted = np.array(data[t][method][target_site]["predicted"])[mhless_deletions].astype(np.float) # Q
-            observed = np.array(data[t][method][target_site]["actual"])[mhless_deletions].astype(np.float) # P
+            predicted = np.array(data[t][method][target_site]["predicted"])[mhless_deletions].astype(float) # Q
+            observed = np.array(data[t][method][target_site]["actual"])[mhless_deletions].astype(float) # P
 
             predicted = predicted/sum(predicted)
             observed = observed/sum(observed)
@@ -236,8 +240,8 @@ for t in TEST_FILES:
         for target_site in common_oligos[t]:
             indels = np.array(data[t][method][target_site]["indels"])
             insertions = np.array([is_insertion(x, method) for x in indels])
-            predicted = np.array(data[t][method][target_site]["predicted"])[insertions].astype(np.float) # Q
-            observed = np.array(data[t][method][target_site]["actual"])[insertions].astype(np.float) # P
+            predicted = np.array(data[t][method][target_site]["predicted"])[insertions].astype(float) # Q
+            observed = np.array(data[t][method][target_site]["actual"])[insertions].astype(float) # P
 
             predicted = predicted/sum(predicted)
             observed = observed/sum(observed)
@@ -268,8 +272,8 @@ for t in TEST_FILES:
         for target_site in common_oligos[t]:
             indels = np.array(data[t][method][target_site]["indels"])
             insertions = np.array([is_insertion(x, method) for x in indels])
-            predicted = np.array(data[t][method][target_site]["predicted"]).astype(np.float) # Q
-            observed = np.array(data[t][method][target_site]["actual"]).astype(np.float) # P
+            predicted = np.array(data[t][method][target_site]["predicted"]).astype(float) # Q
+            observed = np.array(data[t][method][target_site]["actual"]).astype(float) # P
 
             p.append(sum(predicted[insertions])/sum(predicted))
             o.append(sum(observed[insertions])/sum(observed))

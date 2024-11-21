@@ -9,9 +9,8 @@ from sklearn.metrics import mean_squared_error
 from joblib import dump, load
 
 from indelphi_original import load_model, DualNeuralNetwork
-sys.path.append("../")
-from data_loader import get_common_samples, get_details_from_fasta
-from test_setup import MIN_NUMBER_OF_READS
+from src.data.data_loader import get_common_samples, get_details_from_fasta
+from src.config.test_setup import MIN_NUMBER_OF_READS
 
 TRAIN_GENOTYPE = "train"
 # TRAIN_GENOTYPE = "0105-mESC-Lib1-Cas9-Tol2-BioRep2-techrep1"
@@ -20,9 +19,9 @@ INPUT_F = OUTPUT_DIR + "/model_training/data_{}x".format(MIN_NUMBER_OF_READS) + 
 DELETION_MODEL = load_model(experiment_name="inDelphi", min_num_reads=MIN_NUMBER_OF_READS)
 NUCLEOTIDES = ["A", "C", "G", "T"]
 KNN_FEATURES = ["total_del_phi", "precision"] + ["-3" + n for n in NUCLEOTIDES] + ["-4" + n for n in NUCLEOTIDES]
-SCALER_F = "./models/preprocessing/knn_scaler.bin"
-MODEL_F = "./models/kNN_indelphi.bin"
-NUCLEOTIDE_LOOKUP_F = "./models/preprocessing/indelphi_1bp_lookup.bin"
+SCALER_F = "./src/models/XCRISP/models/preprocessing/knn_scaler.bin"
+MODEL_F = "./src/models/XCRISP/models/kNN_indelphi.bin"
+NUCLEOTIDE_LOOKUP_F = "./src/models/XCRISP/models/preprocessing/indelphi_1bp_lookup.bin"
 RANDOM_STATE = 1
 
 def precision_score(y):
@@ -33,12 +32,16 @@ def precision_score(y):
 def get_fasta_file_for_dataset(d):
     if d in ["train", "test"]:
         oligo_f = "FORECasT/{}.fasta".format(d)
+    elif "_test" in d:
+        oligo_f = "FORECasT/test.fasta"
+    elif "_transfertest" in d:
+        oligo_f =  "inDelphi/LibA.forward.fasta"
     elif d == "0105-mESC-Lib1-Cas9-Tol2-BioRep2-techrep1":
         oligo_f = "inDelphi/LibA.forward.fasta"
     else:
         oligo_f = "LUMC/{}.forward.fasta".format(d)
     
-    return get_details_from_fasta("../../data/{}".format(oligo_f))
+    return get_details_from_fasta("./src/data/{}".format(oligo_f))
 
 def one_hot_encode(nucleotide):
     lookup = {

@@ -5,10 +5,10 @@ assert(MIN_NUMBER_OF_READS in [100, 1000])
 
 TEST_FILES = [
     # ("FORECasT", "train", "train"),
-    ("FORECasT", "test", "test"),
-    # ("FORECasT", "test", "TREX_A_test"),
-    # ("FORECasT", "test", "HAP1_test"),
-    ("inDelphi", "LibA", "0105-mESC-Lib1-Cas9-Tol2-BioRep2-techrep1"),
+    # ("FORECasT", "test", "test"),
+    ("FORECasT", "test", "TREX_A_test"),
+    ("FORECasT", "test", "HAP1_test"),
+    # ("inDelphi", "LibA", "0105-mESC-Lib1-Cas9-Tol2-BioRep2-techrep1"),
     # ("inDelphi", "LibA", "052218-U2OS-+-LibA-postCas9-rep1_transfertest"),
     # ("inDelphi", "LibA", "0226-PRLmESC-Lib1-Cas9_transfertest"),
     # ("LUMC", "WT", "WT"),
