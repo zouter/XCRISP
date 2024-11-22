@@ -16,7 +16,7 @@ import warnings
 warnings.simplefilter(action='ignore', category=pd.errors.PerformanceWarning)
 
 OUTPUT_DIR = os.environ['OUTPUT_DIR'] if 'OUTPUT_DIR' in os.environ else "./data/Transfer"
-INPUT_F = OUTPUT_DIR + "/model_training/data_100x/X-CRISP/{}.pkl"
+INPUT_F = OUTPUT_DIR + "/model_training/data_100x/OurModel/{}.pkl"
 INSERTION_MODEL_F = "./src/models/Lindel/models/100x_{}_{}_{}_insertion.h5"
 INDEL_MODEL_F = "./src/models/Lindel/models/100x_{}_{}_{}_indel.h5"
 PREDICTIONS_DIR = OUTPUT_DIR + "model_predictions/X-CRISP/"
