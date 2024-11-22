@@ -51,11 +51,11 @@ for i, t in enumerate(TEST_FILES):
     for target_site in data[t]["FORECasT"].keys():
         data[t]["FORECasT"][target_site]["actual"] = np.array(data[t]["FORECasT"][target_site]["actual"]) - 0.5
 
-    # print("loaded baselines for " + t)
-    # for mode in ["pretrained", "baseline", "pretrainedsamearch", "pretrainedplusonelayer", "pretrainedonefrozenlayer",  "weightinit"]:
-    #     for num_samples in [2, 5, 10, 20, 50, 100, 200, 500]:
-    #         data[t]["transfer_{}_{}".format(mode, num_samples)] = pkl.load(open(TRANSFER_PREDICTIONS_F.format(mode, num_samples, t), 'rb'))
-    # print("loaded transfer models for " + t)
+    print("loaded baselines for " + t)
+    for mode in ["pretrained", "baseline", "pretrainedsamearch", "pretrainedplusonelayer", "pretrainedonefrozenlayer",  "weightinit"]:
+        for num_samples in [2, 5, 10, 20, 50, 100, 200, 500]:
+            data[t]["transfer_{}_{}".format(mode, num_samples)] = pkl.load(open(TRANSFER_PREDICTIONS_F.format(mode, num_samples, t), 'rb'))
+    print("loaded transfer models for " + t)
 
 models = list(data[t].keys())
 
@@ -180,9 +180,9 @@ for t in TEST_FILES:
                 print(target_site, method)
 
             indels = np.array(data[t][method][target_site]["indels"]) 
-            predicted = np.array(data[t][method][target_site]["predicted"]).astype(np.float) # Q
+            predicted = np.array(data[t][method][target_site]["predicted"]).astype(float) # Q
             predicted = predicted/sum(predicted)
-            observed = np.array(data[t][method][target_site]["actual"]).astype(np.float)
+            observed = np.array(data[t][method][target_site]["actual"]).astype(float)
             observed = observed/sum(observed) # P
             indices.append((test_f, method, target_site))
             correlation = np.corrcoef(predicted, observed)[0,1]
@@ -194,7 +194,7 @@ indices = pd.MultiIndex.from_tuples(indices, names=["Dataset", "Method", "Target
 df = pd.DataFrame(rows, index=indices, columns=["Pearson's Correlation", "KL Divergence", "Jensen Shannon"])
 inf_oligos = df[~np.isfinite(df["KL Divergence"])].index.get_level_values(2)
 df = df[~df.index.get_level_values(2).isin(inf_oligos)]
-# df.to_csv(os.environ["OUTPUT_DIR"] + "/Results/Transfer_Learning/overall.tsv", sep="\t")
+df.to_csv(os.environ["OUTPUT_DIR"] + "/Results/Transfer_Learning/overall.tsv", sep="\t")
 
 print("Calculated overall results")
 
@@ -217,8 +217,8 @@ for t in TEST_FILES:
                 mh = np.array(data[t][method][target_site]["mh"] + ([False] * 21)) 
             else:
                 mh = np.array(data[t][method][target_site]["mh"])
-            predicted = np.array(data[t][method][target_site]["predicted"])[mh].astype(np.float) # Q
-            observed = np.array(data[t][method][target_site]["actual"])[mh].astype(np.float) # P
+            predicted = np.array(data[t][method][target_site]["predicted"])[mh].astype(float) # Q
+            observed = np.array(data[t][method][target_site]["actual"])[mh].astype(float) # P
 
             predicted = predicted/sum(predicted)
             observed = observed/sum(observed)
@@ -234,7 +234,7 @@ indices = pd.MultiIndex.from_tuples(indices, names=["Dataset", "Method", "Target
 df = pd.DataFrame(rows, index=indices, columns=["Pearson's Correlation", "KL Divergence", "Jensen Shannon"])
 inf_oligos = df[~np.isfinite(df["KL Divergence"])].index.get_level_values(2)
 df = df[~df.index.get_level_values(2).isin(inf_oligos)]
-# df.to_csv(os.environ["OUTPUT_DIR"] + "/Results/Transfer_Learning/mh.tsv", sep="\t")
+df.to_csv(os.environ["OUTPUT_DIR"] + "/Results/Transfer_Learning/mh.tsv", sep="\t")
 
 print("Calculated MH results")
 
@@ -254,8 +254,8 @@ for t in TEST_FILES:
                 mh = np.array(data[t][method][target_site]["mh"])
             mhless = np.invert(mh)
             mhless_deletions = deletions & mhless
-            predicted = np.array(data[t][method][target_site]["predicted"])[mhless_deletions].astype(np.float) # Q
-            observed = np.array(data[t][method][target_site]["actual"])[mhless_deletions].astype(np.float) # P
+            predicted = np.array(data[t][method][target_site]["predicted"])[mhless_deletions].astype(float) # Q
+            observed = np.array(data[t][method][target_site]["actual"])[mhless_deletions].astype(float) # P
 
             predicted = predicted/sum(predicted)
             observed = observed/sum(observed)
@@ -271,7 +271,7 @@ indices = pd.MultiIndex.from_tuples(indices, names=["Dataset", "Method", "Target
 df = pd.DataFrame(rows, index=indices, columns=["Pearson's Correlation", "KL Divergence", "Jensen Shannon"])
 inf_oligos = df[~np.isfinite(df["KL Divergence"])].index.get_level_values(2)
 df = df[~df.index.get_level_values(2).isin(inf_oligos)]
-# df.to_csv(os.environ["OUTPUT_DIR"] + "/Results/Transfer_Learning/mhless.tsv", sep="\t")
+df.to_csv(os.environ["OUTPUT_DIR"] + "/Results/Transfer_Learning/mhless.tsv", sep="\t")
 
 print("Calculated MH Less results")
 
@@ -326,7 +326,7 @@ indices = pd.MultiIndex.from_tuples(indices, names=["Dataset", "Method", "Target
 df = pd.DataFrame(rows, index=indices, columns=["Pearson's Correlation", "KL Divergence", "Jensen Shannon"])
 inf_oligos = df[~np.isfinite(df["KL Divergence"])].index.get_level_values(2)
 df = df[~df.index.get_level_values(2).isin(inf_oligos)]
-# df.to_csv(os.environ["OUTPUT_DIR"] + "/Results/Transfer_Learning/insertions.tsv", sep="\t")
+df.to_csv(os.environ["OUTPUT_DIR"] + "/Results/Transfer_Learning/insertions.tsv", sep="\t")
 
 print("Calculated insertion results")
 
@@ -341,8 +341,8 @@ for t in TEST_FILES:
         for target_site in common_oligos[t]:
             indels = np.array(data[t][method][target_site]["indels"])
             insertions = np.array([is_insertion(x, method) for x in indels])
-            predicted = np.array(data[t][method][target_site]["predicted"]).astype(np.float) # Q
-            observed = np.array(data[t][method][target_site]["actual"]).astype(np.float) # P
+            predicted = np.array(data[t][method][target_site]["predicted"]).astype(float) # Q
+            observed = np.array(data[t][method][target_site]["actual"]).astype(float) # P
 
             p.append(sum(predicted[insertions])/sum(predicted))
             o.append(sum(observed[insertions])/sum(observed))
@@ -353,7 +353,7 @@ for t in TEST_FILES:
 
 indices = pd.MultiIndex.from_tuples(indices, names=["Dataset", "Method"])
 df = pd.DataFrame(rows, index=indices, columns=["Mean Squared Error"])
-# df.to_csv(os.environ["OUTPUT_DIR"] + "/Results/Transfer_Learning/indels.tsv", sep="\t")
+df.to_csv(os.environ["OUTPUT_DIR"] + "/Results/Transfer_Learning/indels.tsv", sep="\t")
 
 print("Calculated indel results")
 
@@ -362,11 +362,147 @@ print("Calculated indel results")
 
 
 
+from sklearn.metrics import mean_squared_error
+
+# collect predicted data into dataframe
+def is_1bp_deletion(indel, method):
+    if method in ["CRISPRedict", "Lindel", "FORECasT"] or ("transfer" in method):
+        return indel.split("+")[-1] == "1"
+    if method == "inDelphi":
+        return indel.split("+")[-1] == "1" or indel == "DL1"
+
+def is_1bp_insertion(indel, method):
+    if (method in ["CRISPRedict", "Lindel", "inDelphi"]) or ("transfer" in method):
+        return indel in ['1+A', '1+C', '1+G', '1+T']
+    if method == 'FORECasT':
+        return indel[:2] == "I1"
+
+def is_insertion(indel, method):
+    if (method in ["CRISPRedict", "Lindel", "inDelphi"]) or ("transfer" in method):
+        return indel in common_insertions or indel == "3" or indel == "3+X"
+    if method == "FORECasT":
+        return indel[0] == "I"
+
+def is_frameshift(indel, method, t = "any"):
+    length = None
+    if (method in ["CRISPRedict", "Lindel"]) or ("transfer" in method):
+        if is_insertion(indel, method):
+            length = int(indel[0]) 
+        else:
+            length = int(indel.split("+")[-1]) 
+    if method == "inDelphi":
+        if is_insertion(indel, method):
+            length = int(indel[0])
+        elif indel[:2] == "DL":
+            length = int(indel[2:])
+        else:
+            length = int(indel.split("+")[-1]) 
+    if method == "FORECasT":
+        if is_insertion(indel, method):
+            length = int(indel.split("_")[0][1:])
+        else:
+            length = int(indel.split("+")[-1]) 
+        
+    allonebpframeshifts = np.array([1, 4, 7, 10, 13, 16, 19, 22, 25, 28])
+    alltwobpframeshifts = allonebpframeshifts + 1
+
+    if t == 1:
+        return length in allonebpframeshifts
+    elif t == 2:
+        return length in alltwobpframeshifts
+    else:
+        return length % 3 != 0
+
+rows = []
+indices = []
+for t in TEST_FILES:
+    test_f = file_mapping[t]
+    for method in data[t].keys():
+
+        # deletion frequency
+        # one basepair deletions
+        preddelfreq = []
+        obsdelfreq = []
+        for target_site in common_oligos[t]:
+            indels = np.array(data[t][method][target_site]["indels"]) 
+            dels = [not is_insertion(x, method) for x in indels]
+            preddelratio = sum(np.array(data[t][method][target_site]["predicted"])[dels])/sum(data[t][method][target_site]["predicted"])
+            preddelfreq.append(preddelratio)
+            obsdelratio = sum(np.array(data[t][method][target_site]["actual"])[dels])/sum(data[t][method][target_site]["actual"])
+            obsdelfreq.append(obsdelratio)
+        delmse = mean_squared_error(preddelfreq, obsdelfreq)
 
 
+        # one basepair deletions
+        predonebpdelfreq = []
+        obsonebpdelfreq = []
+        for target_site in common_oligos[t]:
+            indels = np.array(data[t][method][target_site]["indels"]) 
+            onebpdels = [is_1bp_deletion(x, method) for x in indels]
+            predonebpdelratio = sum(np.array(data[t][method][target_site]["predicted"])[onebpdels])/sum(data[t][method][target_site]["predicted"])
+            predonebpdelfreq.append(predonebpdelratio)
+            obsonebpdelratio = sum(np.array(data[t][method][target_site]["actual"])[onebpdels])/sum(data[t][method][target_site]["actual"])
+            obsonebpdelfreq.append(obsonebpdelratio)
+        onebpdelmse = mean_squared_error(predonebpdelfreq, obsonebpdelfreq)
 
 
+        # one basepair insertions
+        predonebpinsfreq = []
+        obsonebpinsfreq = []
+        for target_site in common_oligos[t]:
+            indels = np.array(data[t][method][target_site]["indels"]) 
+            onebpins = [is_1bp_insertion(x, method) for x in indels]
+            predonebpinsratio = sum(np.array(data[t][method][target_site]["predicted"])[onebpins])/sum(data[t][method][target_site]["predicted"])
+            predonebpinsfreq.append(predonebpinsratio)
+            obsonebpinsratio = sum(np.array(data[t][method][target_site]["actual"])[onebpins])/sum(data[t][method][target_site]["actual"])
+            obsonebpinsfreq.append(obsonebpinsratio)
+        onebpinsmse = mean_squared_error(predonebpinsfreq, obsonebpinsfreq)
+
+        # one bp frameshift
+        predonebpframeshiftfreq = []
+        obsonebpframeshiftfreq = []
+        for target_site in common_oligos[t]:
+            indels = np.array(data[t][method][target_site]["indels"]) 
+            onebpframeshift = [is_frameshift(x, method, 1) for x in indels]
+            predonebpframeshiftratio = sum(np.array(data[t][method][target_site]["predicted"])[onebpframeshift])/sum(data[t][method][target_site]["predicted"])
+            predonebpframeshiftfreq.append(predonebpframeshiftratio)
+            obsonebpframeshiftratio = sum(np.array(data[t][method][target_site]["actual"])[onebpframeshift])/sum(data[t][method][target_site]["actual"])
+            obsonebpframeshiftfreq.append(obsonebpframeshiftratio)
+        onebpframeshiftmse = mean_squared_error(predonebpframeshiftfreq, obsonebpframeshiftfreq)
+
+        # two bp frameshift
+        predtwobpframeshiftfreq = []
+        obstwobpframeshiftfreq = []
+        for target_site in common_oligos[t]:
+            indels = np.array(data[t][method][target_site]["indels"]) 
+            twobpframeshift = [is_frameshift(x, method, 2) for x in indels]
+            predtwobpframeshiftratio = sum(np.array(data[t][method][target_site]["predicted"])[twobpframeshift])/sum(data[t][method][target_site]["predicted"])
+            predtwobpframeshiftfreq.append(predtwobpframeshiftratio)
+            obstwobpframeshiftratio = sum(np.array(data[t][method][target_site]["actual"])[twobpframeshift])/sum(data[t][method][target_site]["actual"])
+            obstwobpframeshiftfreq.append(obstwobpframeshiftratio)
+        twobpframeshiftmse = mean_squared_error(predtwobpframeshiftfreq, obstwobpframeshiftfreq)
+        
+        # frameshift
+        predframeshiftfreq = []
+        obsframeshiftfreq = []
+        for target_site in common_oligos[t]:
+            indels = np.array(data[t][method][target_site]["indels"]) 
+            frameshift = [is_frameshift(x, method, "any") for x in indels]
+            predframeshiftratio = sum(np.array(data[t][method][target_site]["predicted"])[frameshift])/sum(data[t][method][target_site]["predicted"])
+            predframeshiftfreq.append(predframeshiftratio)
+            obsframeshiftratio = sum(np.array(data[t][method][target_site]["actual"])[frameshift])/sum(data[t][method][target_site]["actual"])
+            obsframeshiftfreq.append(obsframeshiftratio)
+        frameshiftmse = mean_squared_error(predframeshiftfreq, obsframeshiftfreq)
 
 
+        rows.append([delmse, onebpdelmse, onebpinsmse, onebpframeshiftmse, twobpframeshiftmse, frameshiftmse])
+        indices.append((test_f, method))
+  
+indices = pd.MultiIndex.from_tuples(indices, names=["Dataset", "Method"])
+df = pd.DataFrame(rows, index=indices, columns=["Deletion", "1BP Deletion", "1BP Insertion", "1BP Frameshift", "2BP Frameshift", "Frameshift"])
+df.groupby(["Dataset", "Method"])
 
+df.to_csv(os.environ["OUTPUT_DIR"] + "/Results/Transfer_Learning/stats_comparison.tsv", sep="\t")
+
+print("Calculated indel results")
 
