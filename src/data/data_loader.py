@@ -19,7 +19,7 @@ def get_Tijsterman_Analyser_datafile(dataset, sample_name, parsed=True):
     else:
         if dataset in ["test", "train", "2A_TREX_A"]:
             return COUNTS_DIR + "processed_data/Tijsterman_Analyser/FORECasT/{}".format(sample_name)
-        elif dataset in ["HAP1", "TREX_A"]:
+        elif dataset in ["HAP1", "TREX_A", "HAP1_test", "TREX_A_test"]:
             return COUNTS_DIR + "processed_data/Tijsterman_Analyser/{}/{}".format(dataset, sample_name)
         return COUNTS_DIR + "processed_data/Tijsterman_Analyser/{}/{}_indels".format(dataset, sample_name)
 
