@@ -87,7 +87,7 @@ if __name__ == "__main__":
         filename = d
         if rank == 0:
             if d in FORECasT:
-                parts = d.split("_")
+                parts = d.rsplit("_", 1)
                 guides = list(get_details_from_fasta("./src/data/FORECasT/{}.fasta".format(parts[-1])).values())
                 d = parts[0]
             if d in inDelphi:
