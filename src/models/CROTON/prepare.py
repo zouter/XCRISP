@@ -6,12 +6,9 @@ import numpy as np
 from tqdm import tqdm
 from Bio.Seq import Seq
 
-sys.path.append("../X-CRISP")
-from indels import gen_indels_v3
-
-sys.path.append("../")
-from data_loader import get_details_from_fasta, get_Tijsterman_Analyser_datafile
-from test_setup import MIN_NUMBER_OF_READS
+from src.models.XCRISP.indels import gen_indels_v3
+from src.data.data_loader import get_details_from_fasta, get_Tijsterman_Analyser_datafile
+from src.config.test_setup import MIN_NUMBER_OF_READS
 
 from mpi4py import MPI
 
@@ -76,30 +73,36 @@ if __name__ == "__main__":
     os.makedirs(output, exist_ok=True)
     VERBOSE = True
 
-    FORECasT = ["train", "test"]
+    FORECasT = ["train", "test", "HAP1_test", "TREX_A_test"]
     LUMC = ["WT", "POLQ", "KU80", "LIG4"]
-    inDelphi = ["0226-PRLmESC-Lib1-Cas9_train", "0226-PRLmESC-Lib1-Cas9_test", "0105-mESC-Lib1-Cas9-Tol2-BioRep2-techrep1"]
+    inDelphi = ["0226-PRLmESC-Lib1-Cas9_train", "0226-PRLmESC-Lib1-Cas9_test", "0105-mESC-Lib1-Cas9-Tol2-BioRep2-techrep1", "052218-U2OS-+-LibA-postCas9-rep1_transfertest", "0226-PRLmESC-Lib1-Cas9_transfertest"]
     # DATASETS = FORECasT + LUMC + inDelphi
     # DATASETS = ["WT", "train", "test", "0105-mESC-Lib1-Cas9-Tol2-BioRep2-techrep1"]
-    DATASETS = ["train", "test", "0105-mESC-Lib1-Cas9-Tol2-BioRep2-techrep1"]
+    DATASETS = ["HAP1_test", "TREX_A_test", "052218-U2OS-+-LibA-postCas9-rep1_transfertest", "0226-PRLmESC-Lib1-Cas9_transfertest"]
 
     for d in DATASETS:
         print(d)
         filename = d
         if rank == 0:
             if d in FORECasT:
-                guides = list(get_details_from_fasta("../../data/FORECasT/{}.fasta".format(d)).values())
+                parts = d.split("_")
+                guides = list(get_details_from_fasta("./src/data/FORECasT/{}.fasta".format(parts[-1])).values())
+                d = parts[0]
             if d in inDelphi:
                 parts = d.split("_")
                 if len(parts) == 1:
-                    guides = list(get_details_from_fasta("../../data/inDelphi/LibA.forward.fasta").values())
+                    guides = list(get_details_from_fasta("./src/data/inDelphi/LibA.forward.fasta").values())
                     guides = [correct_inDelphi(g) for g in guides]
+                elif parts[-1] == "transfertest":
+                    guides = list(get_details_from_fasta("./src/data/inDelphi/transfertest.fasta".format(parts[-1])).values())
+                    guides = [correct_inDelphi(g) for g in guides]
+                    d = parts[0]
                 else:
-                    guides = list(get_details_from_fasta("../../data/inDelphi/LibA_{}.fasta".format(parts[1])).values())
+                    guides = list(get_details_from_fasta("./src/data/inDelphi/LibA_{}.fasta".format(parts[1])).values())
                     guides = [correct_inDelphi(g) for g in guides]
                     d = parts[0]
             if d in LUMC:
-                guides = list(get_details_from_fasta("../../data/LUMC/{}.forward.fasta".format(d)).values())
+                guides = list(get_details_from_fasta("./src/data/LUMC/{}.forward.fasta".format(d)).values())
             guides = [guides[i:len(guides):size] for i in range(size)]
         else:
             guides = None

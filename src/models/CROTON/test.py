@@ -5,9 +5,8 @@ import pandas as pd
 from tqdm import tqdm
 from tensorflow.keras.models import load_model
 from model import load_data
-sys.path.append("../")
-from test_setup import read_test_file, TEST_FILES, MIN_NUMBER_OF_READS
-from data_loader import get_common_samples
+from src.config.test_setup import read_test_file, TEST_FILES, MIN_NUMBER_OF_READS
+from src.data.data_loader import get_common_samples
 
 OUTPUT_DIR = os.environ['OUTPUT_DIR']
 PREDICTIONS_DIR = OUTPUT_DIR + "model_predictions/CROTON/"
@@ -15,7 +14,7 @@ STATS = ["del_freq", "prob_1bpins", "prob_1bpdel", "one_bp_frameshift", "two_bp_
 
 if __name__ == "__main__":
     os.makedirs(PREDICTIONS_DIR, exist_ok=True)
-    model = load_model("models/CROTON_new.h5")
+    model = load_model("./src/models/CROTON/models/CROTON_new.h5")
     for dataset, oligo_file, genotype in TEST_FILES:
         X, y, samples = load_data(dataset=genotype, num_samples=None)
 

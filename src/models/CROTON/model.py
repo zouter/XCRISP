@@ -6,9 +6,7 @@ from tensorflow.keras.models import load_model
 from sklearn.model_selection import train_test_split
 from tensorflow.python.keras import optimizers
 import keras
-
-sys.path.append("../")
-from data_loader import get_common_samples
+from src.data.data_loader import get_common_samples
 
 # set global vars
 OUTPUT_DIR = os.environ['OUTPUT_DIR']
@@ -44,7 +42,7 @@ if __name__ == "__main__":
     X_val = X[idx_val_samples & idx_common_samples, :, :]
     y_val = y[idx_val_samples & idx_common_samples, :]
 
-    pre_trained_model = load_model("models/CROTON_pretrained.h5")
+    pre_trained_model = load_model("./src/models/CROTON/models/CROTON_pretrained.h5")
     print(pre_trained_model.summary())
 
     model = tf.keras.models.clone_model(pre_trained_model)
@@ -62,7 +60,7 @@ if __name__ == "__main__":
         validation_data = (X_val, y_val)
     )
 
-    model.save("./models/CROTON_new.h5")
+    model.save("./src/models/CROTON/models/CROTON_new.h5")
 
     print("Generate predictions for 3 samples")
     predictions = model.predict(X_val[:3])
