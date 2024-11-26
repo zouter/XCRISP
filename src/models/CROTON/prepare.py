@@ -19,6 +19,8 @@ rank = comm.Get_rank()
 OUTPUT_DIR = os.environ['OUTPUT_DIR']
 MIN_NUMBER_INDELS = MIN_NUMBER_OF_READS
 
+print("Prepping data")
+
 def load_Tijsterman_data(dataset, sample_name):
     filename = get_Tijsterman_Analyser_datafile(dataset, sample_name)
     if not os.path.exists(filename): 
@@ -88,6 +90,7 @@ if __name__ == "__main__":
                 parts = d.split("_")
                 guides = list(get_details_from_fasta("./src/data/FORECasT/{}.fasta".format(parts[-1])).values())
                 d = parts[0]
+                print("fasta:", d)
             if d in inDelphi:
                 parts = d.split("_")
                 if len(parts) == 1:
@@ -115,6 +118,7 @@ if __name__ == "__main__":
             cutsite = g["PAM Index"]-3
             seq = g["TargetSequence"][cutsite-30:cutsite+30]
             indels = gen_indels_v3(seq, 30, max_deletion_length=30).set_index(["Indel"])
+            print("fetching stats for ", d)
             y = get_stats(d, g["ID"], indels)
             if y is None: continue
             x = one_hot_encode(seq, "ACGT")

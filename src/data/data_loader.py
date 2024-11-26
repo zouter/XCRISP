@@ -10,6 +10,7 @@ hostname = socket.gethostname()
 COUNTS_DIR = os.environ['OUTPUT_DIR'] 
 
 def get_Tijsterman_Analyser_datafile(dataset, sample_name, parsed=True):
+    print("loading data for", dataset)
     if parsed:
         if dataset in ["test", "train"]:
             return COUNTS_DIR + "processed_data/Tijsterman_Analyser/FORECasT/{}.tij.sorted.tsv".format(sample_name)
