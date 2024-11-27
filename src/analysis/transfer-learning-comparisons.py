@@ -546,8 +546,8 @@ croton_mse_d = pd.DataFrame({
 
 croton_mse_d
 
-# df = pd.concat([df, croton_mse_d]).sort_index()
-# df.to_csv(os.environ["OUTPUT_DIR"] + "/Results/Transfer_Learning/stats_comparison.tsv", sep="\t")
+df = pd.concat([df, croton_mse_d.reset_index()]).sort_index()
+df.to_csv(os.environ["OUTPUT_DIR"] + "/Results/Transfer_Learning/stats_comparison.tsv", sep="\t")
 
 print("Calculated stats results")
 
