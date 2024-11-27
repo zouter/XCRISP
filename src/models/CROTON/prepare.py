@@ -10,6 +10,9 @@ from src.models.XCRISP.indels import gen_indels_v3
 from src.data.data_loader import get_details_from_fasta, get_Tijsterman_Analyser_datafile
 from src.config.test_setup import MIN_NUMBER_OF_READS
 
+import warnings
+warnings.filterwarnings("error")
+
 from mpi4py import MPI
 
 comm = MPI.COMM_WORLD
@@ -51,6 +54,7 @@ def get_stats(dataset, sample_name, indels):
     stats = [del_freq, prob_1bpins, prob_1bpdel, one_bp_frameshift, two_bp_frameshift, frameshift]
 
     if np.isnan(stats).any(): 
+        print("Calculation error in:", dataset, sample_name)
         return None
 
     return stats
@@ -81,6 +85,7 @@ if __name__ == "__main__":
     # DATASETS = FORECasT + LUMC + inDelphi
     # DATASETS = ["WT", "train", "test", "0105-mESC-Lib1-Cas9-Tol2-BioRep2-techrep1"]
     DATASETS = ["HAP1_test", "TREX_A_test", "052218-U2OS-+-LibA-postCas9-rep1_transfertest", "0226-PRLmESC-Lib1-Cas9_transfertest"]
+    # DATASETS = ["test"]
 
     for d in DATASETS:
         print(d)
@@ -129,7 +134,7 @@ if __name__ == "__main__":
             "input_seq": np.array(X),
             "samples": np.array(z)
         }
-        pickle.dump(data, open(output + filename + ".pkl", "wb"))
+        # pickle.dump(data, open(output + filename + ".pkl", "wb"))
     print("Done.")
 
 
