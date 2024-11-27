@@ -113,7 +113,7 @@ if __name__ == "__main__":
         X = []
         Y = []
         z = []
-        for g in tqdm(guides[:10]):
+        for g in tqdm(guides):
             cutsite = g["PAM Index"]-3
             seq = g["TargetSequence"][cutsite-30:cutsite+30]
             indels = gen_indels_v3(seq, 30, max_deletion_length=30).set_index(["Indel"])
