@@ -57,6 +57,9 @@ def get_stats(dataset, sample_name, indels):
         print("Calculation error in:", dataset, sample_name)
         return None
 
+    if total_counts < 100:
+        print("Problem here, less than 100 reads", dataset, sample_name, total_counts)
+
     return stats
 
 def correct_inDelphi(o):
