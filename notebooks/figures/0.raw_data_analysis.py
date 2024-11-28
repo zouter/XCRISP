@@ -70,3 +70,37 @@ for d in all_ds:
     # plt.show()
     plt.savefig(f"./notebooks/figures/artifacts/mutated_read_count_distributions_{d}.pdf")
 plt.close()
+
+
+for d in all_ds:
+
+    file_dir = os.environ["OUTPUT_DIR"] + "processed_data/Tijsterman_Analyser/{}/".format(d)
+
+    if not os.path.exists(file_dir):
+        continue
+
+    all_f = os.listdir(file_dir)
+    all_f = [f for f in all_f if ("tij.sorted" in f)]
+
+    if len(all_f) == 0:
+        continue
+
+    df = []
+
+    for f in all_f:
+        target = f.split(".")[0]
+        counts = pd.read_csv(file_dir + f, sep="\t")["countEvents"].sum()
+        t = pd.read_csv(file_dir + f, sep="\t")
+        total_counts = t["countEvents"].sum()
+        t["Fraction"] = t["countEvents"]/total_counts
+        t = t[t["Type"] == "DELETION"][["Type", "Size", "Fraction"]].groupby(["Type", "Size"]).sum(numeric_only=True)
+        df.append(t)
+
+    df = pd.concat(df).reset_index()
+    fig, ax = plt.subplots(figsize=(15, 3))
+    sns.barplot(data=df.groupby("Size").sum(numeric_only=True).div(len(all_f)).reset_index(), x="Size", y="Fraction", ax=ax)
+    plt.title(f"Mean Deletion Length Frequency of Mapped Mutated Reads for\n{title_mapping[d]}")
+    plt.ylim(0, 1)
+    plt.tight_layout()
+    plt.savefig(f"./artifacts/mapped_mutated_reads_deletion_length_frequencies_{d}.pdf", bbox_inches='tight')
+plt.close()
