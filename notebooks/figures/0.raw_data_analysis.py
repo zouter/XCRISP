@@ -9,6 +9,7 @@ from numpy import percentile
 all_ds = ['FORECasT',
  '0105-mESC-Lib1-Cas9-Tol2-BioRep2-techrep1',
  '1027-mESC-Lib1-Cas9-Tol2-Biorep1-techrep1',
+ '052218-U2OS-+-LibA-postCas9-rep1',
  '0226-PRLmESC-Lib1-Cas9',
  'TREX_A',
  'HAP1']
@@ -28,6 +29,7 @@ for d in all_ds:
     file_dir = os.environ["OUTPUT_DIR"] + "processed_data/Tijsterman_Analyser/{}/".format(d)
 
     if not os.path.exists(file_dir):
+        print(file_dir, "does not exist.")
         continue
 
     all_f = os.listdir(file_dir)
@@ -65,8 +67,8 @@ for d in all_ds:
         f"Q3: {quartiles[2]:.3f} \n" + 
         f"Max: {data_max:.3f} \n"       
     )
-    plt.show()
-    # plt.savefig(f"./artifacts/mutated_read_count_distributions_{d}.pdf")
+    # plt.show()
+    plt.savefig(f"./artifacts/mutated_read_count_distributions_{d}.pdf")
 plt.close()
 
 
