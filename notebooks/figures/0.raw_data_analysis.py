@@ -59,8 +59,8 @@ for d in all_ds:
     print('Q3: %.3f' % quartiles[2])
     print('Max: %.3f' % data_max)
 
-    sns.displot(data=df, x="Count", aspect=4, height=3, binwidth=100 if d in ["FORECasT", "TREX_A", "HAP1"] else 10000)
-    plt.title(f"Distribution of mutated read counts for {title_mapping[d]}\n" + 
+    p = sns.displot(data=df, x="Count", aspect=4, height=3, binwidth=100 if d in ["FORECasT", "TREX_A", "HAP1"] else 10000)
+    p.figure.suptitle(f"Distribution of mutated read counts for {title_mapping[d]}\n" + 
         f"Min: {data_min:.3f} \n" + 
         f"Q1: {quartiles[0]:.3f} \n" + 
         f"Median: {quartiles[1]:.3f} \n" + 
@@ -68,7 +68,6 @@ for d in all_ds:
         f"Max: {data_max:.3f} \n"       
     )
     # plt.show()
-    plt.savefig(f"./artifacts/mutated_read_count_distributions_{d}.pdf")
+    protonddr = os.environ["PROTONDDR"]
+    plt.savefig(f"{protonddr}/repos/x-crisp/notebooks/figures/artifacts/mutated_read_count_distributions_{d}.pdf")
 plt.close()
-
-
