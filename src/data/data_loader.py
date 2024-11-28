@@ -134,7 +134,7 @@ def get_common_samples(genotype="train", min_reads=100, include_FORECasT = True)
     lindel_d = list(pkl.load(open(lindel_data_f, 'rb')).keys())
 
     # load X-CRISP data
-    ourmodel_data_f = os.environ["OUTPUT_DIR"] + "/model_training/data_{}x/X-CRISP/{}.pkl".format(min_reads, genotype) 
+    ourmodel_data_f = os.environ["OUTPUT_DIR"] + "/model_training/data_{}x/OurModel/{}.pkl".format(min_reads, genotype) 
     ourmodel_d = list(pd.read_pickle(ourmodel_data_f)["counts"].index.levels[0])
 
     if include_FORECasT:
