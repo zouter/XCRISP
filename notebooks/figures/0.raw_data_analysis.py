@@ -68,6 +68,5 @@ for d in all_ds:
         f"Max: {data_max:.3f} \n"       
     )
     # plt.show()
-    protonddr = os.environ["PROTONDDR"]
-    plt.savefig(f"{protonddr}/repos/x-crisp/notebooks/figures/artifacts/mutated_read_count_distributions_{d}.pdf")
+    plt.savefig(f"./notebooks/figures/artifacts/mutated_read_count_distributions_{d}.pdf")
 plt.close()
