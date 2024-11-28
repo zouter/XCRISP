@@ -102,5 +102,5 @@ for d in all_ds:
     plt.title(f"Mean Deletion Length Frequency of Mapped Mutated Reads for\n{title_mapping[d]}")
     plt.ylim(0, 1)
     plt.tight_layout()
-    plt.savefig(f"./artifacts/mapped_mutated_reads_deletion_length_frequencies_{d}.pdf", bbox_inches='tight')
+    plt.savefig(f"./notebooks/figures/artifacts/mapped_mutated_reads_deletion_length_frequencies_{d}.pdf", bbox_inches='tight')
 plt.close()
