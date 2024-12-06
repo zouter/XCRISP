@@ -2,8 +2,7 @@ import io, csv, os, sys
 import pandas as pd
 import pickle as pkl
 import Bio.Seq
-sys.path.append("../")
-from data_loader import get_details_from_fasta
+from src.data.data_loader import get_details_from_fasta
 from tqdm import tqdm
 
 NTS = ['A','T','G','C']

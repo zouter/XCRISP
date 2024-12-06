@@ -9,10 +9,9 @@ from mpi4py import MPI
 from scipy.stats import pearsonr, spearmanr
 from scipy.optimize import minimize
 
-from features import read_features_data
+from src.models.FORECasT.features import read_features_data
 
-sys.path.append("../")
-from test_setup import MIN_NUMBER_OF_READS
+from src.config.test_setup import MIN_NUMBER_OF_READS
 
 comm = MPI.COMM_WORLD
 mpi_rank = comm.Get_rank()
