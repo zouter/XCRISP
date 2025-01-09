@@ -24,8 +24,11 @@ title_mapping = {
     'HAP1': "mESC HAP1"
 }
 
+print("beginning")
+
 for d in all_ds:
 
+    print(d)
     file_dir = os.environ["OUTPUT_DIR"] + "processed_data/Tijsterman_Analyser/{}/".format(d)
 
     if not os.path.exists(file_dir):
