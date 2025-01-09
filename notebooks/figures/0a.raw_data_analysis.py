@@ -79,7 +79,7 @@ print("beginning")
 
 
 for d in all_ds:
-
+    print(d)
     file_dir = os.environ["OUTPUT_DIR"] + "processed_data/Tijsterman_Analyser/{}/".format(d)
 
     if not os.path.exists(file_dir):
@@ -108,14 +108,14 @@ for d in all_ds:
     plt.title(f"Mean Frequency of Deletions of Given Lengths Across Target Tites for\n{title_mapping[d]}")
     plt.ylim(0, 0.2)
     plt.tight_layout()
-    plt.ylabel("Average Frequency")
+    plt.ylabel("Mean Frequency")
     plt.xlabel(f"Deletion Length")
     plt.savefig(f"./notebooks/figures/artifacts/mapped_mutated_reads_deletion_length_frequencies_{d}.pdf", bbox_inches='tight')
 plt.close()
 
 
 for d in all_ds:
-
+    print(d)
     file_dir = os.environ["OUTPUT_DIR"] + "processed_data/Tijsterman_Analyser/{}/".format(d)
 
     if not os.path.exists(file_dir):
@@ -144,7 +144,7 @@ for d in all_ds:
     plt.title(f"Mean Frequency of Insertions of Given Lengths Across Target Tites for\n{title_mapping[d]}")
     plt.ylim(0, 0.4)
     plt.tight_layout()
-    plt.ylabel("Average Frequency")
+    plt.ylabel("Mean Frequency")
     plt.xlabel(f"Insertion Length")
     plt.savefig(f"./notebooks/figures/artifacts/mapped_mutated_reads_insertion_length_frequencies_{d}.pdf", bbox_inches='tight')
 plt.close()
