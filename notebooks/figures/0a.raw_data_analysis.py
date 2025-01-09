@@ -26,13 +26,63 @@ title_mapping = {
 
 print("beginning")
 
+# for d in all_ds:
+
+#     print(d)
+#     file_dir = os.environ["OUTPUT_DIR"] + "processed_data/Tijsterman_Analyser/{}/".format(d)
+
+#     if not os.path.exists(file_dir):
+#         print(file_dir, "does not exist.")
+#         continue
+
+#     all_f = os.listdir(file_dir)
+#     all_f = [f for f in all_f if ("tij.sorted" in f)]
+
+#     if len(all_f) == 0:
+#         continue
+
+#     df = []
+
+#     for f in all_f:
+#         target = f.split(".")[0]
+#         counts = pd.read_csv(file_dir + f, sep="\t")["countEvents"].sum()
+#         df.append((target, counts))
+
+#     df = pd.DataFrame(df, columns=["Target", "Count"])
+#     df.head()
+
+#     data = df["Count"]
+#     quartiles = percentile(data, [25, 50, 75])
+#     data_min, data_max = data.min(), data.max()
+
+#     print(d)
+#     print(f"Min: {data_min:.3f}")
+#     print('Q1: %.3f' % quartiles[0])
+#     print('Median: %.3f' % quartiles[1])
+#     print('Q3: %.3f' % quartiles[2])
+#     print('Max: %.3f' % data_max)
+
+#     binwidth = 100 if d in ["FORECasT", "TREX_A", "HAP1"] else 10000
+#     p = sns.displot(data=df, x="Count", aspect=4, height=3, binwidth=binwidth)
+#     p.figure.suptitle(f"Distribution of mutated read counts for {title_mapping[d]}\n" + 
+#         f"Min: {data_min:.3f} \n" + 
+#         f"Q1: {quartiles[0]:.3f} \n" + 
+#         f"Median: {quartiles[1]:.3f} \n" + 
+#         f"Q3: {quartiles[2]:.3f} \n" + 
+#         f"Max: {data_max:.3f} \n"       
+#     )
+#     # plt.show()
+#     plt.ylabel("Number of target sites")
+#     plt.xlabel(f"Number of mutated reads per target site (bin width = {binwidth})")
+#     plt.savefig(f"./notebooks/figures/artifacts/mutated_read_count_distributions_{d}.pdf")
+# plt.close()
+
+
 for d in all_ds:
 
-    print(d)
     file_dir = os.environ["OUTPUT_DIR"] + "processed_data/Tijsterman_Analyser/{}/".format(d)
 
     if not os.path.exists(file_dir):
-        print(file_dir, "does not exist.")
         continue
 
     all_f = os.listdir(file_dir)
@@ -46,101 +96,55 @@ for d in all_ds:
     for f in all_f:
         target = f.split(".")[0]
         counts = pd.read_csv(file_dir + f, sep="\t")["countEvents"].sum()
-        df.append((target, counts))
+        t = pd.read_csv(file_dir + f, sep="\t")
+        total_counts = t["countEvents"].sum()
+        t["Fraction"] = t["countEvents"]/total_counts
+        t = t[t["Type"] == "DELETION"][["Type", "Size", "Fraction"]].groupby(["Type", "Size"]).sum(numeric_only=True)
+        df.append(t)
 
-    df = pd.DataFrame(df, columns=["Target", "Count"])
-    df.head()
-
-    data = df["Count"]
-    quartiles = percentile(data, [25, 50, 75])
-    data_min, data_max = data.min(), data.max()
-
-    print(d)
-    print(f"Min: {data_min:.3f}")
-    print('Q1: %.3f' % quartiles[0])
-    print('Median: %.3f' % quartiles[1])
-    print('Q3: %.3f' % quartiles[2])
-    print('Max: %.3f' % data_max)
-
-    binwidth = 100 if d in ["FORECasT", "TREX_A", "HAP1"] else 10000
-    p = sns.displot(data=df, x="Count", aspect=4, height=3, binwidth=binwidth)
-    p.figure.suptitle(f"Distribution of mutated read counts for {title_mapping[d]}\n" + 
-        f"Min: {data_min:.3f} \n" + 
-        f"Q1: {quartiles[0]:.3f} \n" + 
-        f"Median: {quartiles[1]:.3f} \n" + 
-        f"Q3: {quartiles[2]:.3f} \n" + 
-        f"Max: {data_max:.3f} \n"       
-    )
-    # plt.show()
-    plt.ylabel("Number of target sites")
-    plt.xlabel(f"Number of mutated reads per target site (bin width = {binwidth})")
-    plt.savefig(f"./notebooks/figures/artifacts/mutated_read_count_distributions_{d}.pdf")
+    df = pd.concat(df).reset_index()
+    fig, ax = plt.subplots(figsize=(15, 3))
+    sns.barplot(data=df.groupby("Size").sum(numeric_only=True).div(len(all_f)).reset_index(), x="Size", y="Fraction", ax=ax)
+    plt.title(f"Mean Deletion Length Frequency of Mapped Mutated Reads for\n{title_mapping[d]}")
+    plt.ylim(0, 0.2)
+    plt.tight_layout()
+    plt.ylabel("Average Frequency")
+    plt.xlabel(f"Deletion Length")
+    plt.savefig(f"./notebooks/figures/artifacts/mapped_mutated_reads_deletion_length_frequencies_{d}.pdf", bbox_inches='tight')
 plt.close()
 
 
-# for d in all_ds:
+for d in all_ds:
 
-#     file_dir = os.environ["OUTPUT_DIR"] + "processed_data/Tijsterman_Analyser/{}/".format(d)
+    file_dir = os.environ["OUTPUT_DIR"] + "processed_data/Tijsterman_Analyser/{}/".format(d)
 
-#     if not os.path.exists(file_dir):
-#         continue
+    if not os.path.exists(file_dir):
+        continue
 
-#     all_f = os.listdir(file_dir)
-#     all_f = [f for f in all_f if ("tij.sorted" in f)]
+    all_f = os.listdir(file_dir)
+    all_f = [f for f in all_f if ("tij.sorted" in f)]
 
-#     if len(all_f) == 0:
-#         continue
+    if len(all_f) == 0:
+        continue
 
-#     df = []
+    df = []
 
-#     for f in all_f:
-#         target = f.split(".")[0]
-#         counts = pd.read_csv(file_dir + f, sep="\t")["countEvents"].sum()
-#         t = pd.read_csv(file_dir + f, sep="\t")
-#         total_counts = t["countEvents"].sum()
-#         t["Fraction"] = t["countEvents"]/total_counts
-#         t = t[t["Type"] == "DELETION"][["Type", "Size", "Fraction"]].groupby(["Type", "Size"]).sum(numeric_only=True)
-#         df.append(t)
+    for f in all_f:
+        target = f.split(".")[0]
+        counts = pd.read_csv(file_dir + f, sep="\t")["countEvents"].sum()
+        t = pd.read_csv(file_dir + f, sep="\t")
+        total_counts = t["countEvents"].sum()
+        t["Fraction"] = t["countEvents"]/total_counts
+        t = t[t["Type"] == "INSERTION"][["Type", "Size", "Fraction"]].groupby(["Type", "Size"]).sum(numeric_only=True)
+        df.append(t)
 
-#     df = pd.concat(df).reset_index()
-#     fig, ax = plt.subplots(figsize=(15, 3))
-#     sns.barplot(data=df.groupby("Size").sum(numeric_only=True).div(len(all_f)).reset_index(), x="Size", y="Fraction", ax=ax)
-#     plt.title(f"Mean Deletion Length Frequency of Mapped Mutated Reads for\n{title_mapping[d]}")
-#     plt.ylim(0, 0.2)
-#     plt.tight_layout()
-#     plt.savefig(f"./notebooks/figures/artifacts/mapped_mutated_reads_deletion_length_frequencies_{d}.pdf", bbox_inches='tight')
-# plt.close()
-
-
-# for d in all_ds:
-
-#     file_dir = os.environ["OUTPUT_DIR"] + "processed_data/Tijsterman_Analyser/{}/".format(d)
-
-#     if not os.path.exists(file_dir):
-#         continue
-
-#     all_f = os.listdir(file_dir)
-#     all_f = [f for f in all_f if ("tij.sorted" in f)]
-
-#     if len(all_f) == 0:
-#         continue
-
-#     df = []
-
-#     for f in all_f:
-#         target = f.split(".")[0]
-#         counts = pd.read_csv(file_dir + f, sep="\t")["countEvents"].sum()
-#         t = pd.read_csv(file_dir + f, sep="\t")
-#         total_counts = t["countEvents"].sum()
-#         t["Fraction"] = t["countEvents"]/total_counts
-#         t = t[t["Type"] == "INSERTION"][["Type", "Size", "Fraction"]].groupby(["Type", "Size"]).sum(numeric_only=True)
-#         df.append(t)
-
-#     df = pd.concat(df).reset_index()
-#     fig, ax = plt.subplots(figsize=(15, 3))
-#     sns.barplot(data=df.groupby("Size").sum(numeric_only=True).div(len(all_f)).reset_index(), x="Size", y="Fraction", ax=ax)
-#     plt.title(f"Mean Insertion Length Frequency of Mapped Mutated Reads for\n{title_mapping[d]}")
-#     plt.ylim(0, 0.4)
-#     plt.tight_layout()
-#     plt.savefig(f"./notebooks/figures/artifacts/mapped_mutated_reads_insertion_length_frequencies_{d}.pdf", bbox_inches='tight')
-# plt.close()
+    df = pd.concat(df).reset_index()
+    fig, ax = plt.subplots(figsize=(15, 3))
+    sns.barplot(data=df.groupby("Size").sum(numeric_only=True).div(len(all_f)).reset_index(), x="Size", y="Fraction", ax=ax)
+    plt.title(f"Mean Insertion Length Frequency of Mapped Mutated Reads for\n{title_mapping[d]}")
+    plt.ylim(0, 0.4)
+    plt.tight_layout()
+    plt.ylabel("Average Frequency")
+    plt.xlabel(f"Insertion Length")
+    plt.savefig(f"./notebooks/figures/artifacts/mapped_mutated_reads_insertion_length_frequencies_{d}.pdf", bbox_inches='tight')
+plt.close()
