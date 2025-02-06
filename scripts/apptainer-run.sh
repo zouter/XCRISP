@@ -18,7 +18,7 @@ case "$1" in
         --env PROTONDDR=$PROTONDDR \
         -B $PROTONDDR:$PROTONDDR \
         containers/lab.sif \
-        mpiexec -n $2 /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.analysis.calculate_homology 
+        mpiexec -n $2 /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.analysis.calculate_homology $3
         ;;
     "transfer")
         echo "Running transfer learning training"
