@@ -1,9 +1,11 @@
 from Bio import SeqIO
 from Bio.Align import PairwiseAligner
+from scipy.spatial.distance import hamming
 from mpi4py import MPI
 import numpy as np
 import pandas as pd
 import os
+import sys
 import random
 
 def get_sequence_with_flank_lengths(sequence, pam_index, left_flank_len, right_flank_len, include_spacer=False):
@@ -40,12 +42,15 @@ def read_fasta(file_path):
         #     break
     return sequences
 
-def smith_waterman_score(seq1, seq2):
+def align_score(seq1, seq2, mode="local"):
     """Calculate the Smith-Waterman alignment score for two sequences."""
-    aligner = PairwiseAligner()
-    aligner.mode = 'local'
-    alignment = aligner.align(seq1, seq2)
-    return alignment.score
+    if mode in ["local", "global"]:
+        aligner = PairwiseAligner()
+        aligner.mode = mode
+        alignment = aligner.align(seq1, seq2)
+        return alignment.score
+    if mode == "edit":
+        return hamming(seq1, seq2)
 
 def correct_sequence(id, sequence, pam_index):
     if "Oligo" not in id:
@@ -54,6 +59,9 @@ def correct_sequence(id, sequence, pam_index):
     return sequence, pam_index
 
 def main():
+    aligner = sys.argv[1]
+
+
     # Initialize MPI
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
@@ -107,7 +115,7 @@ def main():
     # Each process calculates the Smith-Waterman score for its chunk of pairs
     local_scores = {}
     for i, j in pair_chunk:
-        score = smith_waterman_score(sequences[i][1], sequences[j][1])
+        score = align_score(sequences[i][1], sequences[j][1])
         id1 = sequences[i][0]
         id2 = sequences[j][0]
         local_scores[(id1, id2)] = score
@@ -141,7 +149,7 @@ def main():
         sorted_df['NonNaNCount'] = sorted_df.isna().sum(axis=1)
         sorted_df = sorted_df.sort_values('NonNaNCount', ascending=False).drop(columns='NonNaNCount')
 
-        sorted_df.to_csv(f"{os.environ['PROTONDDR']}/repos/x-crisp/data/processed/alignment.tsv", sep="\t")
+        sorted_df.to_csv(f"{os.environ['PROTONDDR']}/repos/x-crisp/data/processed/alignment_{aligner}.tsv", sep="\t")
 
 if __name__ == "__main__":
     main()
