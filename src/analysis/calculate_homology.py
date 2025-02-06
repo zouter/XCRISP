@@ -50,7 +50,7 @@ def align_score(seq1, seq2, mode="local"):
         alignment = aligner.align(seq1, seq2)
         return alignment.score
     if mode == "edit":
-        return hamming(seq1, seq2)
+        return hamming(list(seq1), list(seq2))
 
 def correct_sequence(id, sequence, pam_index):
     if "Oligo" not in id:
@@ -82,6 +82,13 @@ def main():
         print("Sample sequences:")
         for s in random.sample(sequences, 5):
             print(s)
+        if aligner in ["local", "global"]:
+            taligner = PairwiseAligner()
+            taligner.mode = aligner
+            talignment = aligner.align(s[0][0], s[1][0])
+            print(talignment.score)
+        if aligner == "edit":
+            print(hamming(list(sequences[0][1]), list(sequences[1][1])))
         print("\n")
 
         # Generate all unique pairs of indices for pairwise comparison
