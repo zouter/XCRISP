@@ -115,7 +115,7 @@ def main():
     # Each process calculates the Smith-Waterman score for its chunk of pairs
     local_scores = {}
     for i, j in pair_chunk:
-        score = align_score(sequences[i][1], sequences[j][1])
+        score = align_score(sequences[i][1], sequences[j][1], mode=aligner)
         id1 = sequences[i][0]
         id2 = sequences[j][0]
         local_scores[(id1, id2)] = score
