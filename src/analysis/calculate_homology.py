@@ -52,7 +52,7 @@ def align_score(seq1, seq2, mode="local"):
     elif mode == "edit":
         score = hamming(list(seq1), list(seq2))
         print("Comparing:", seq1, "and", seq2, "with", mode, "score:", score)
-        return score
+        return int(round(score * len(seq1)))
 
 def correct_sequence(id, sequence, pam_index):
     if "Oligo" not in id:
