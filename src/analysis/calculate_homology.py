@@ -49,7 +49,7 @@ def align_score(seq1, seq2, mode="local"):
         aligner.mode = mode
         alignment = aligner.align(seq1, seq2)
         return alignment.score
-    if mode == "edit":
+    elif mode == "edit":
         return hamming(list(seq1), list(seq2))
 
 def correct_sequence(id, sequence, pam_index):
@@ -85,7 +85,7 @@ def main():
         if aligner in ["local", "global"]:
             taligner = PairwiseAligner()
             taligner.mode = aligner
-            talignment = aligner.align(s[0][0], s[1][0])
+            talignment = aligner.align(sequences[0][0], sequences[1][0])
             print(talignment.score)
         if aligner == "edit":
             print(hamming(list(sequences[0][1]), list(sequences[1][1])))
