@@ -50,7 +50,9 @@ def align_score(seq1, seq2, mode="local"):
         alignment = aligner.align(seq1, seq2)
         return alignment.score
     elif mode == "edit":
-        return hamming(list(seq1), list(seq2))
+        score = hamming(list(seq1), list(seq2))
+        print("Comparing:", seq1, "and", seq2, "with", mode, "score:", score)
+        return score
 
 def correct_sequence(id, sequence, pam_index):
     if "Oligo" not in id:
@@ -122,7 +124,6 @@ def main():
     # Each process calculates the Smith-Waterman score for its chunk of pairs
     local_scores = {}
     for i, j in pair_chunk:
-        print("Comparing:", sequences[i][1], "and", sequences[j][1], "with", aligner)
         score = align_score(sequences[i][1], sequences[j][1], mode=aligner)
         id1 = sequences[i][0]
         id2 = sequences[j][0]
