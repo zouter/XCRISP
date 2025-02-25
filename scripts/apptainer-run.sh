@@ -24,8 +24,8 @@ case "$1" in
         echo "Preparing data for $3"
         apptainer exec --nv -C  \
         -H $PROTONDDR/repos/x-crisp/ \
-        --env PROTONDDR=$PROTONDDR \
-        -B $PROTONDDR:$PROTONDDR \
+        --env OUTPUT_DIR=$OUTPUT_DIR \
+        -B $OUTPUT_DIR:$OUTPUT_DIR \
         containers/lab.sif \
         mpiexec -n $2 /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.$3.prepare $4
         ;;
