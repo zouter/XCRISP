@@ -76,7 +76,8 @@ if __name__ == "__main__":
     if d in FORECasT:
         parts = d.split("_")
         guides = list(get_details_from_fasta("./src/data/FORECasT/{}.fasta".format(parts[-1])).values())
-        d = "_".join(parts[:-1])
+        if len(parts) > 1:
+            d = "_".join(parts[:-1])
     if d in inDelphi:
         parts = d.split("_")
         if len(parts) == 1:
