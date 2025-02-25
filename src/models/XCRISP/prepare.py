@@ -142,4 +142,3 @@ if __name__ == "__main__":
         print("Done.", rank)
     else:
         print("Done: ", rank)
-    print(all_counts.index.get_level_values(0).unique().shape)
