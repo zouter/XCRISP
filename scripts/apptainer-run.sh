@@ -20,6 +20,15 @@ case "$1" in
         containers/lab.sif \
         mpiexec -n $2 /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.analysis.calculate_homology $3
         ;;
+    "prepare")
+        echo "Running alignment scores"
+        apptainer exec --nv -C  \
+        -H $PROTONDDR/repos/x-crisp/ \
+        --env PROTONDDR=$PROTONDDR \
+        -B $PROTONDDR:$PROTONDDR \
+        containers/lab.sif \
+        mpiexec -n $2 /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.$3.prepare $4
+        ;;
     "transfer")
         echo "Running transfer learning training"
         if [[ "$2" == *hpc* ]]; then
