@@ -6,7 +6,7 @@ import pandas as pd
 from Bio.Seq import Seq
 from tqdm import tqdm
 from src.models.XCRISP.transfer import load_model, NeuralNetwork, TransferNeuralNetwork, TransferNeuralNetworkWithOneExtraHiddenLayer, TransferNeuralNetworkOneFrozenLayer
-from src.models.XCRISP.model import FEATURE_SETS
+from src.models.XCRISP.__model import FEATURE_SETS
 from src.config.test_setup  import read_test_file, TRANSFER_TEST_FILES
 from src.data.data_loader import get_common_samples
 from src.models.Lindel.features import onehotencoder

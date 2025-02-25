@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from Bio.Seq import Seq
 from tqdm import tqdm
-from model import load_model, NeuralNetwork, FEATURE_SETS, LOSSES
+from src.models.XCRISP.__model import load_model, NeuralNetwork, FEATURE_SETS, LOSSES
 
 sys.path.append("../")
 from test_setup import read_test_file, TEST_FILES, MIN_NUMBER_OF_READS

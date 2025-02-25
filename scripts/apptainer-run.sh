@@ -29,6 +29,15 @@ case "$1" in
         containers/lab.sif \
         mpiexec -n $2 /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.$3.prepare $4
         ;;
+    "deletion")
+        echo "Training X-CRISP deletion model"
+        apptainer exec --nv -C  \
+        -H $PROTONDDR/repos/x-crisp/ \
+        --env OUTPUT_DIR=$OUTPUT_DIR \
+        -B $OUTPUT_DIR:$OUTPUT_DIR \
+        containers/lab.sif \
+        /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.XCRISP.deletion $2 $3
+        ;;
     "transfer")
         echo "Running transfer learning training"
         if [[ "$2" == *hpc* ]]; then

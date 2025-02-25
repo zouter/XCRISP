@@ -15,7 +15,7 @@ from audtorch.metrics.functional import pearsonr
 from sklearn.model_selection import KFold, train_test_split
 
 from features import DELETION_FEATURES
-from model import _to_tensor, init_weights, NoExperimentDefined, InvalidExperiment
+from src.models.XCRISP.__model import _to_tensor, init_weights, NoExperimentDefined, InvalidExperiment
 
 from src.data.data_loader import get_common_samples
 from src.config.test_setup import MIN_NUMBER_OF_READS

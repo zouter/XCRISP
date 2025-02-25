@@ -16,7 +16,7 @@ from audtorch.metrics.functional import pearsonr
 from sklearn.model_selection import KFold, train_test_split
 
 from features import DELETION_FEATURES
-from model import _to_tensor, init_weights, pearsons_mean_loss, NoExperimentDefined, InvalidExperiment
+from src.models.XCRISP.__model import _to_tensor, init_weights, pearsons_mean_loss, NoExperimentDefined, InvalidExperiment
 
 sys.path.append("../")
 from data_loader import get_common_samples

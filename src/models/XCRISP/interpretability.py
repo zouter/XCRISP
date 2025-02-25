@@ -9,7 +9,7 @@ from test_setup import MIN_NUMBER_OF_READS
 import shap
 import random
 from sklearn.model_selection import train_test_split
-from model import load_model, load_data, NeuralNetwork, FEATURE_SETS, _to_tensor
+from src.models.XCRISP.__model import load_model, load_data, NeuralNetwork, FEATURE_SETS, _to_tensor
 from tqdm import tqdm
 import pandas as pd
 import numpy as np

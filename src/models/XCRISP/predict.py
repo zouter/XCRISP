@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-from model import load_model, FEATURE_SETS, predict, NeuralNetwork
+from src.models.XCRISP.__model import load_model, FEATURE_SETS, predict, NeuralNetwork
 from features import get_features
 from indels import gen_indels_v3
 from Bio.Seq import Seq
