@@ -8,4 +8,4 @@
 #SBATCH --mem-per-cpu=1GB
 #SBATCH --qos=short
 
-mpiexec -n 16 python3 /tudelft.net/staff-umbrella/protonddr/repos/repair-outcome-prediction/local/modelling/X-CRISP/prepare.py $1
+mpiexec -n 16 python3 $PROTONDDR/repos/X-CRISP/src/models/XCRISP/prepare.py $1

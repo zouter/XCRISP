@@ -8,4 +8,4 @@
 #SBATCH --qos=short
 
 
-python3 /tudelft.net/staff-umbrella/protonddr/repos/repair-outcome-prediction/local/modelling/CROTON/prepare.py 
+python3 $PROTONDDR/repos/repair-outcome-prediction/local/modelling/CROTON/prepare.py 
