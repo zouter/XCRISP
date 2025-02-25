@@ -7,9 +7,8 @@ from Bio.Seq import Seq
 from indels import gen_indels_v3
 from features import get_features, get_insertion_features
 
-sys.path.append("../")
-from data_loader import get_details_from_fasta, get_Tijsterman_Analyser_datafile
-from test_setup import MIN_NUMBER_OF_READS
+from src.data.data_loader import get_details_from_fasta, get_Tijsterman_Analyser_datafile
+from src.config.test_setup import MIN_NUMBER_OF_READS
 
 from mpi4py import MPI
 
@@ -47,7 +46,8 @@ def get_counts(dataset, sample_name, indels):
     counts["countEvents"] = counts["countEvents"].fillna(0)
     counts["fraction"] = counts["countEvents"]/counts["countEvents"].sum()
     counts["Sample_Name"] = sample_name
-    return counts.reset_index().set_index(["Sample_Name", "Indel"])[["Type", "countEvents", "fraction"]]
+    counts = counts.reset_index().set_index(["Sample_Name", "Indel"])[["Type", "countEvents", "fraction"]]
+    return counts
 
 def correct_inDelphi(o):
     o["TargetSequence"] = "GTCAT" + o["TargetSequence"] + "AGATCGGAAG"
@@ -75,19 +75,19 @@ if __name__ == "__main__":
     
     if d in FORECasT:
         parts = d.split("_")
-        guides = list(get_details_from_fasta("../../data/FORECasT/{}.fasta".format(parts[-1])).values())
+        guides = list(get_details_from_fasta("./src/data/FORECasT/{}.fasta".format(parts[-1])).values())
         d = "_".join(parts[:-1])
     if d in inDelphi:
         parts = d.split("_")
         if len(parts) == 1:
-            guides = list(get_details_from_fasta("../../data/inDelphi/LibA.forward.fasta").values())
+            guides = list(get_details_from_fasta("./src/data/inDelphi/LibA.forward.fasta").values())
             guides = [correct_inDelphi(g) for g in guides]
         else:
-            guides = list(get_details_from_fasta("../../data/inDelphi/{}.fasta".format(parts[-1])).values())
+            guides = list(get_details_from_fasta("./src/data/inDelphi/{}.fasta".format(parts[-1])).values())
             guides = [correct_inDelphi(g) for g in guides]
             d = parts[0]
     if d in LUMC:
-        guides = list(get_details_from_fasta("../../data/LUMC/{}.forward.fasta".format(d)).values())
+        guides = list(get_details_from_fasta("./src/data/LUMC/{}.forward.fasta".format(d)).values())
     guides = [guides[i:len(guides):size] for i in range(size)]
     
     if rank != 0:

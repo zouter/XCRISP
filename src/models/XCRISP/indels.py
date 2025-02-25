@@ -6,6 +6,15 @@ import numpy as np
 class SequenceTooShort(Exception):
     pass
 
+def get_inserted_sequence_position(dna_string, sequence):
+    count = 0
+    seq_len = len(sequence)
+    
+    while dna_string.startswith(sequence * (count + 1)):
+        count += 1
+    
+    return count * seq_len
+
 def gen_indel(sequence, cut_site, max_deletion_length=30):
     '''This is the function that used to generate all possible unique indels and 
     list the redundant classes which will be combined after'''
@@ -149,29 +158,30 @@ def gen_indels_v3(seq, cutsite, max_deletion_length=30, deletion_window_length=3
         left_flank = seq[:cutsite]
         right_flank = seq[cutsite:]
         new_seq = left_flank + new_seq + right_flank
-
+        nt1_position = get_inserted_sequence_position(right_flank, nt1)
         unique_seq[new_seq] = {
             "Type": "INSERTION",
             "Size": 1,
-            "Start": 0,
-            "Positions": [0],
+            "Start": nt1_position,
+            "Positions": [nt1_position],
             "InsSeq": nt1,
-            "leftFlank": left_seq,
-            "rightFlank": right_seq,
+            "leftFlank": left_flank,
+            "rightFlank": right_flank,
             "valid": True
         }
 
         for nt2 in nucleotides:
             ins_seq = nt1 + nt2
             new_seq = left_flank + ins_seq + right_flank
+            nt2_position = get_inserted_sequence_position(right_flank, ins_seq)
             unique_seq[new_seq] = {
                 "Type": "INSERTION",
                 "Size": 2,
-                "Start": 0,
-                "Positions": [0],
+                "Start": nt2_position,
+                "Positions": [nt2_position],
                 "InsSeq": ins_seq,
-                "leftFlank": left_seq,
-                "rightFlank": right_seq,
+                "leftFlank": left_flank,
+                "rightFlank": right_flank,
                 "valid": True
             }
 
@@ -182,8 +192,8 @@ def gen_indels_v3(seq, cutsite, max_deletion_length=30, deletion_window_length=3
         "Start": 0,
         "Positions": [0],
         "InsSeq": "X",
-        "leftFlank": left_seq,
-        "rightFlank": right_seq,
+        "leftFlank": left_flank,
+        "rightFlank": right_flank,
         "valid": True
     }
 

@@ -4,8 +4,8 @@ import sys, os, random
 import torch
 print(torch.__version__)
 sys.path.append("../")
-from data_loader import get_common_samples
-from test_setup import MIN_NUMBER_OF_READS
+from src.data.data_loader import get_common_samples
+from src.config.test_setup import MIN_NUMBER_OF_READS
 from tensorflow import keras
 import pickle as pkl
 import pandas as pd
