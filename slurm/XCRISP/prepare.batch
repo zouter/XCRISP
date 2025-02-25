@@ -8,4 +8,4 @@
 #SBATCH --mem-per-cpu=1GB
 #SBATCH --qos=short
 
-./scripts/apptainer-run.sh prepare hpc XCRISP $1
+./scripts/apptainer-run.sh prepare 16 XCRISP $1

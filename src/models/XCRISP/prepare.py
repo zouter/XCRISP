@@ -4,8 +4,8 @@ import sys, os, pickle
 import pandas as pd
 from tqdm import tqdm
 from Bio.Seq import Seq
-from indels import gen_indels_v3
-from features import get_features, get_insertion_features
+from src.models.XCRISP.indels import gen_indels_v3
+from src.models.XCRISP.features import get_features, get_insertion_features
 
 from src.data.data_loader import get_details_from_fasta, get_Tijsterman_Analyser_datafile
 from src.config.test_setup import MIN_NUMBER_OF_READS

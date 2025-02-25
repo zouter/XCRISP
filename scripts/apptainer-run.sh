@@ -21,7 +21,7 @@ case "$1" in
         mpiexec -n $2 /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.analysis.calculate_homology $3
         ;;
     "prepare")
-        echo "Running alignment scores"
+        echo "Preparing data for $3"
         apptainer exec --nv -C  \
         -H $PROTONDDR/repos/x-crisp/ \
         --env PROTONDDR=$PROTONDDR \
