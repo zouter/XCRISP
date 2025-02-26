@@ -59,6 +59,7 @@ def get_stats(dataset, sample_name, indels):
 
     if total_counts < 100:
         print("Problem here, less than 100 reads", dataset, sample_name, total_counts)
+        return None
 
     return stats
 
@@ -137,7 +138,7 @@ if __name__ == "__main__":
             "input_seq": np.array(X),
             "samples": np.array(z)
         }
-        # pickle.dump(data, open(output + filename + ".pkl", "wb"))
+        pickle.dump(data, open(output + filename + ".pkl", "wb"))
     print("Done.")
 
 
