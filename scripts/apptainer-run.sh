@@ -39,6 +39,16 @@ case "$1" in
         containers/lab.sif \
         mpiexec -n $2 /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.XCRISP.deletion_mpi4py $3 $4
         ;;
+    "insertion")
+        echo "Training X-CRISP insertion model"
+        apptainer exec --nv -C  \
+        -H $PROTONDDR/repos/x-crisp/ \
+        --env OUTPUT_DIR=$OUTPUT_DIR \
+        --env LOGS_DIR=$LOGS_DIR \
+        -B $OUTPUT_DIR:$OUTPUT_DIR,$LOGS_DIR:$LOGS_DIR \
+        containers/lab.sif \
+        /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.XCRISP.insertion 
+        ;;
     "transfer")
         echo "Running transfer learning training"
         if [[ "$2" == *hpc* ]]; then
@@ -80,7 +90,7 @@ case "$1" in
         fi
         ;;
     *)
-        echo "Please run one of the following commands: transfer, test_transfer"
+        echo "Please run one of the following commands: alignment_scores, transfer, test_transfer, deletion, prepare"
         ;;
 esac
 

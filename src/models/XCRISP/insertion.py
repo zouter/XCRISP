@@ -12,7 +12,6 @@ from torch.utils.tensorboard import SummaryWriter
 from audtorch.metrics.functional import pearsonr
 from sklearn.model_selection import KFold, train_test_split
 
-sys.path.append("../")
 from src.data.data_loader import get_common_samples
 MIN_NUMBER_OF_READS = 100
 
