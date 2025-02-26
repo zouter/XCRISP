@@ -1,4 +1,4 @@
-# mpiexec -n 2 /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.XCRISP.deletion
+# mpiexec -n 2 /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.XCRISP.deletion_mpi4py
 
 import os, sys
 import pandas as pd
