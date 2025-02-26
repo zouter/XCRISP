@@ -5,10 +5,9 @@ from tqdm import tqdm
 import sys
 from Bio.Seq import Seq
 
-from profile import read_summary_to_profile
+from src.models.FORECasT.profile import read_summary_to_profile
 
-sys.path.append("../")
-from data_loader import load_Tijsterman_data, read_target_sequence_from_file, get_guides_from_fasta
+from src.data.data_loader import load_Tijsterman_data, read_target_sequence_from_file, get_guides_from_fasta
 
 OUTPUT_DIR = os.environ['OUTPUT_DIR']
 
@@ -47,6 +46,10 @@ def indelgen(oligo_f, output):
 
 def load_FORECasT_indels(oligo_id, t):
     f = OUTPUT_DIR + "model_training/data/FORECasT/indels/" + t + "/" + oligo_id + "_genindels.txt"
+
+    if not os.path.exists(f):
+        return None
+
     p = pd.read_csv(f, sep="\t", skiprows=1, names=["Indel", "#Alts", "Details"])
     p["F_InsSeq"] = p.apply(get_ins_seq, axis=1)
     return p[["Indel", "F_InsSeq"]]
@@ -75,7 +78,7 @@ def get_ins_seq(row):
 
 def get_T_counts(x, multi_B):
     try:
-        y = multi_B.loc[x.Type, x.Start, x.Size, :]
+        y = multi_B.loc[(x.Type, x.Start, x.Size), :]
     except KeyError:
         return 0
     if y.empty: return 0
@@ -172,12 +175,13 @@ if __name__ == "__main__":
 
     if d == "FORECasT":
         parts = t.split("_")
-        oligo_f = "../../data/FORECasT/{}.fasta".format(parts[-1])
-        t = "_".join(parts[:-1])
+        oligo_f = "./src/data/FORECasT/{}.fasta".format(parts[-1])
+        if len(parts) > 1:
+            t = "_".join(parts[:-1])
     elif d == "inDelphi":
-        oligo_f = "../../data/inDelphi/LibA.forward.fasta"
+        oligo_f = "./src/data/inDelphi/LibA.forward.fasta"
     else:
-        oligo_f = "../../data/{}/{}.forward.fasta".format(d, t)
+        oligo_f = "./src/data/{}/{}.forward.fasta".format(d, t)
 
     # Uncomment below if you need to generate indel files from scratch
     genotype = t 
@@ -190,6 +194,10 @@ if __name__ == "__main__":
     for g in tqdm(guides):
         # load forecast indels 
         FORECasT = load_FORECasT_indels(g, t)
+        if FORECasT is None:
+            print("FORECasT indel file not found for:", g, "... Skipping...")
+            continue
+
         # map to Tijsterman profiles
         mappings = FORECasT.Indel.apply(convert_FORECasT_indel_to_Normal)
         mappings = pd.DataFrame(list(mappings), columns=["Type", "Start", "Size", "Homology Length"])

@@ -2,9 +2,8 @@ import os, sys
 import pandas as pd
 from features import read_features_data
 from tqdm import tqdm
-sys.path.append("../")
-from data_loader import load_Tijsterman_data, read_target_sequence_from_file, get_guides_from_fasta
-from test_setup import MIN_NUMBER_OF_READS
+from src.data.data_loader import load_Tijsterman_data, read_target_sequence_from_file, get_guides_from_fasta
+from src.config.test_setup import MIN_NUMBER_OF_READS
 
 MIN_READS_PER_TARGET = MIN_NUMBER_OF_READS
 DATA_DIR = "../../"
@@ -17,10 +16,10 @@ VERBOSE = True
 def prepare_dataset(dataset, test_file):
     if dataset != "inDelphi":
         parts = test_file.split("_")
-        samples_f = "../../data/{}/{}.fasta".format(dataset, parts[-1])
+        samples_f = "./src/data/{}/{}.fasta".format(dataset, parts[-1])
     else:
         parts = test_file.split("_")
-        samples_f = "../../data/inDelphi/{}.fasta".format(parts[1])
+        samples_f = "./src/data/inDelphi/{}.fasta".format(parts[1])
 
     samples = get_guides_from_fasta(samples_f)
     output_dir = COMBINED_DIR.format(test_file, PREPROCESSING_OPTIONS[0])
@@ -32,7 +31,7 @@ def prepare_dataset(dataset, test_file):
         else:
             features_f = FEATURES_DIR.format(parts[0]) + s
         if not os.path.exists(features_f): 
-            print(features_f)
+            print("file does not exist", features_f)
             continue
         feature_data, feature_cols = read_features_data(features_f)
 
@@ -42,7 +41,7 @@ def prepare_dataset(dataset, test_file):
             profile_f = PROFILES_DIR.format(PREPROCESSING_OPTIONS[0], parts[0]) + s
         
         if not os.path.exists(profile_f): 
-            if VERBOSE: print(profile_f)
+            if VERBOSE: print("file does not exist", profile_f)
             continue
         profile_data = pd.read_csv(profile_f, sep='\t')
         profile_data["Counts"] = profile_data["Counts"] + 0.5
@@ -92,6 +91,6 @@ if __name__ == "__main__":
     # prepare_dataset("LUMC", "POLQ")
     # prepare_dataset("LUMC", "KU80")
     # prepare_dataset("LUMC", "LIG4")
-    prepare_dataset("inDelphi", "052218-U2OS-+-LibA-postCas9-rep1_transfertest")
-    prepare_dataset("inDelphi", "0226-PRLmESC-Lib1-Cas9_transfertest")
+    # prepare_dataset("inDelphi", "052218-U2OS-+-LibA-postCas9-rep1_transfertest")
+    # prepare_dataset("inDelphi", "0226-PRLmESC-Lib1-Cas9_transfertest")
     # prepare_dataset("inDelphi", "0105-mESC-Lib1-Cas9-Tol2-BioRep2-techrep1")

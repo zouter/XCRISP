@@ -5,11 +5,10 @@ import pickle as pkl
 from tqdm import tqdm
 from Bio.Seq import Seq
 from features import create_feature_array, onehotencoder
-from indels import gen_indel
+from src.models.Lindel.indels import gen_indel
 
-sys.path.append("../")
-from data_loader import load_Tijsterman_data, get_details_from_fasta, load_FORECasT_data
-from test_setup import MIN_NUMBER_OF_READS
+from src.data.data_loader import load_Tijsterman_data, get_details_from_fasta, load_FORECasT_data
+from src.config.test_setup import MIN_NUMBER_OF_READS
 
 OUTPUT_DIR = os.environ['OUTPUT_DIR']
 MIN_READS_PER_TARGET = MIN_NUMBER_OF_READS
