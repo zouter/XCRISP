@@ -1,4 +1,4 @@
-# mpiexec -n 2 /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.XCRISP.deletion_mpi4py
+# mpiexec -n 2 /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.XCRISP.deletion_mpi4py 0.05 kld
 
 import os, sys
 import pandas as pd
@@ -225,9 +225,14 @@ def init_model(num_features, learning_rate, loss_function_str = "kld"):
     optimizer = torch.optim.Adam(model.parameters(), learning_rate, betas=(0.99, 0.999))
     lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=0.999)
     loss_fn = kl_div if loss_function_str == "kld" else mse_loss
+
+    print("Initialising model")
+    print(loss_fn)
+    print(lr_scheduler)
+    print(optimizer)
     return model, optimizer, lr_scheduler, loss_fn
 
-def run_experiment(X, y, samples, experiment_name, do_CV=True, learning_rate=0.05):
+def run_experiment(X, y, samples, experiment_name, do_CV=True, learning_rate=0.05, loss_function_str="kld"):
     # set up tensorboard logger
     # writer = SummaryWriter(LOGS_DIR + experiment_name)
 
@@ -304,8 +309,8 @@ if __name__ == "__main__":
     OUTPUT_MODEL_F = OUTPUT_MODEL_D + "deletion_{}_{}___mpi_model.pth"
     NUM_FOLDS = mpi_size if mpi_size > 1 else 5
     RANDOM_STATE = 1
-    EPOCHS = 20
-    BATCH_SIZE = 20
+    EPOCHS = 200
+    BATCH_SIZE = 200
     # get devices
     # DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
     DEVICE = "cpu"
@@ -335,7 +340,7 @@ if __name__ == "__main__":
 
     experiment_name = "{}_{}_{}".format(FEATURES, loss_function_str, learning_rate)
 
-    print("Training on {} samples, with {} features and a learning rate of {}".format(len(samples), X.shape[1], learning_rate))
-    run_experiment(X.loc[:, FEATURE_SETS[FEATURES]], y, samples, experiment_name=experiment_name, do_CV=True, learning_rate=learning_rate)
+    print("Training on {} samples, with {} features, {} loss and a learning rate of {}".format(len(samples), X.shape[1], loss_function_str, learning_rate))
+    run_experiment(X.loc[:, FEATURE_SETS[FEATURES]], y, samples, experiment_name=experiment_name, do_CV=True, learning_rate=learning_rate, loss_function_str=loss_function_str)
 
     print("Finished.")

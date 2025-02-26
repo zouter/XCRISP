@@ -37,7 +37,7 @@ case "$1" in
         --env LOGS_DIR=$LOGS_DIR \
         -B $OUTPUT_DIR:$OUTPUT_DIR,$LOGS_DIR:$LOGS_DIR \
         containers/lab.sif \
-        /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.XCRISP.deletion $2 $3
+        mpiexec -n $2 /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.XCRISP.deletion_mpi4py $3 $4
         ;;
     "transfer")
         echo "Running transfer learning training"
