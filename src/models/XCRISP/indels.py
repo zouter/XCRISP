@@ -6,14 +6,27 @@ import numpy as np
 class SequenceTooShort(Exception):
     pass
 
+# def check_all_same_char(s):
+#     f = s[0]
+#     for c in s[1:]:
+#         if f != c:
+#             return False
+#     return True
+
 def get_inserted_sequence_position(dna_string, sequence):
     count = 0
     seq_len = len(sequence)
     
-    while dna_string.startswith(sequence * (count + 1)):
-        count += 1
-    
-    return count * seq_len
+    if sequence in ["AA", "CC", "GG", "TT"] and dna_string.startswith(sequence):
+        while dna_string.startswith(sequence + (sequence[0]* (count + 1))):
+            count += 1
+
+        return count + seq_len
+    else:
+        while dna_string.startswith(sequence * (count + 1)):
+            count += 1
+        
+        return count * seq_len
 
 def gen_indel(sequence, cut_site, max_deletion_length=30):
     '''This is the function that used to generate all possible unique indels and 

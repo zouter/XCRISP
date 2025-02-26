@@ -312,8 +312,8 @@ if __name__ == "__main__":
     EPOCHS = 200
     BATCH_SIZE = 200
     # get devices
-    # DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
-    DEVICE = "cpu"
+    DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+    # DEVICE = "cpu"
     
     print('Using {} device'.format(DEVICE))
 

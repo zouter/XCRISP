@@ -273,8 +273,8 @@ if __name__ == "__main__":
     EPOCHS = 200
     BATCH_SIZE = 200
     # get devices
-    # DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
-    DEVICE = "cpu"
+    DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+    # DEVICE = "cpu"
     
     print('Using {} device'.format(DEVICE))
 
@@ -302,6 +302,6 @@ if __name__ == "__main__":
     experiment_name = "{}_{}_{}".format(FEATURES, loss_function_str, learning_rate)
 
     print("Training on {} samples, with {} features and a learning rate of {}".format(len(samples), X.shape[1], learning_rate))
-    run_experiment(X.loc[:, FEATURE_SETS[FEATURES]], y, samples, experiment_name=experiment_name, do_CV=True, learning_rate=learning_rate)
+    run_experiment(X.loc[:, FEATURE_SETS[FEATURES]], y, samples, experiment_name=experiment_name, do_CV=False, learning_rate=learning_rate)
 
     print("Finished.")
