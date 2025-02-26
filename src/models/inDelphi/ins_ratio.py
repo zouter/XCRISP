@@ -1,20 +1,18 @@
 from __future__ import division
 import sys, os, datetime, subprocess, math, pickle, imp, fnmatch
-sys.path.append('/cluster/mshen/')
 import numpy as np
 from collections import defaultdict
 import pandas as pd
 import matplotlib
-import predict
 matplotlib.use('Pdf')
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import seaborn as sns
 from pandas.errors import EmptyDataError
-from prepare import get_Tijsterman_Analyser_datafile, get_valid_indels, is_insert_at_cutsite
 from tqdm import tqdm
-sys.path.append("../")
-from data_loader import get_details_from_fasta
+from src.data.data_loader import get_details_from_fasta
+# import src.models.inDelphi.predict
+from src.models.inDelphi.prepare import get_Tijsterman_Analyser_datafile, get_valid_indels, is_insert_at_cutsite
 
 OUTPUT_DIR = os.environ['OUTPUT_DIR']
 out_dir = OUTPUT_DIR + "/model_training/data_100x/inDelphi/ins_ratio_"
@@ -104,9 +102,9 @@ def calc_statistics(orig_df, exp, alldf_dict):
 def prepare_statistics(data_nm):
     alldf_dict = defaultdict(list)
     if data_nm in ["train", "test"]:
-        guides = list(get_details_from_fasta("../../data/FORECasT/{}.fasta".format(data_nm)).values())
+        guides = list(get_details_from_fasta("./src/data/FORECasT/{}.fasta".format(data_nm)).values())
     else:
-        guides = list(get_details_from_fasta("../../data/inDelphi/LibA.fasta").values())
+        guides = list(get_details_from_fasta("./src/data/inDelphi/LibA.fasta").values())
 
     for g in tqdm(guides):    
     # for g in [{"ID": "Oligo_46064"}]:
@@ -132,13 +130,13 @@ def prepare_statistics(data_nm):
 ##
 # Load statistics from csv, or calculate 
 ##
-def load_statistics(data_nm, redo=False):
+def load_statistics(data_nm, out_dir, redo=False):
   print(data_nm)
   stats_csv_fn = out_dir + '%s.csv' % (data_nm)
   if not os.path.isfile(stats_csv_fn) or redo:
     print('Running statistics from scratch...')
     stats_csv = prepare_statistics(data_nm)
-    stats_csv.to_csv(stats_csv_fn)
+    # stats_csv.to_csv(stats_csv_fn)
   else:
     print('Getting statistics from file...')
     stats_csv = pd.read_csv(stats_csv_fn, index_col = 0)
@@ -196,12 +194,14 @@ def main(data_nm = '', redo_flag = ''):
         plot()
 
     else:
-        load_statistics(data_nm, redo=True)
+        load_statistics(data_nm, out_dir, redo=True)
 
     return
 
 
 if __name__ == '__main__':
+    print("Prepping insertion stats")
+
     if len(sys.argv) == 2:
         main(data_nm = sys.argv[1])
     elif len(sys.argv) == 3:

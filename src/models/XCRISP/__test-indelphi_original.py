@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 from Bio.Seq import Seq
 from tqdm import tqdm
-from indelphi_original import load_model, load_data, DualNeuralNetwork
-from indelphi_kNN import predict, load_insertion_data, NUCLEOTIDES
+from src.models.XCRISP.__indelphi_original import load_model, load_data, DualNeuralNetwork
+from src.models.XCRISP.__indelphi_kNN import predict, load_insertion_data, NUCLEOTIDES
 from src.config.test_setup import read_test_file, TEST_FILES, MIN_NUMBER_OF_READS
 from src.data.data_loader import get_common_samples
 

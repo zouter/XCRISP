@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from joblib import dump, load
 
-from indelphi_original import load_model, DualNeuralNetwork
+from src.models.XCRISP.__indelphi_original import load_model, DualNeuralNetwork
 from src.data.data_loader import get_common_samples, get_details_from_fasta
 from src.config.test_setup import MIN_NUMBER_OF_READS
 
