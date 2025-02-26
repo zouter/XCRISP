@@ -6,7 +6,7 @@ import pandas as pd
 from Bio.Seq import Seq
 from tqdm import tqdm
 # from model_kld import load_model, NeuralNetwork, FEATURE_SETS
-from src.models.XCRISP.__model_kld_mpi4py import load_model, NeuralNetwork, FEATURE_SETS
+from src.models.XCRISP.deletion_mpi4py import load_model, NeuralNetwork, FEATURE_SETS
 
 sys.path.append("../")
 from test_setup import read_test_file, TEST_FILES, MIN_NUMBER_OF_READS

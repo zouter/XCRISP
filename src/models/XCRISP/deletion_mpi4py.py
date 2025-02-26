@@ -1,3 +1,5 @@
+# mpiexec -n 2 /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.XCRISP.deletion
+
 import os, sys
 import pandas as pd
 import numpy as np
@@ -276,6 +278,8 @@ def run_experiment(X, y, samples, experiment_name, do_CV=True, learning_rate=0.0
         }, OUTPUT_MODEL_F.format(loss_function_str, learning_rate).replace("pth", "details"))
         print("Training finished.".format(mpi_rank))
 
+        print("Model saved to:", OUTPUT_MODEL_F.format(loss_function_str, learning_rate))
+
 
 def load_model(loss_function_str = "kld", model_dir="./models/"):
     learning_rate = 0.1
@@ -297,11 +301,11 @@ if __name__ == "__main__":
     LOGS_DIR = os.environ['LOGS_DIR'] + TRAINING_DATA + "/"
     os.makedirs(LOGS_DIR, exist_ok=True)
     OUTPUT_MODEL_D = OUTPUT_DIR + "/model_training/model/X-CRISP/"
-    OUTPUT_MODEL_F = OUTPUT_MODEL_D + "mpi_v4_{}_lr_{}_model.pth"
+    OUTPUT_MODEL_F = OUTPUT_MODEL_D + "deletion_{}_{}___mpi_model.pth"
     NUM_FOLDS = mpi_size if mpi_size > 1 else 5
     RANDOM_STATE = 1
-    EPOCHS = 200
-    BATCH_SIZE = 200
+    EPOCHS = 20
+    BATCH_SIZE = 20
     # get devices
     # DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
     DEVICE = "cpu"

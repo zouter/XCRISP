@@ -13,10 +13,7 @@ from torch.utils.tensorboard import SummaryWriter
 from audtorch.metrics.functional import pearsonr
 from sklearn.model_selection import KFold, train_test_split
 
-from features import DELETION_FEATURES
-from bins import bin_repair_outcomes_by_length
-
-sys.path.append("../")
+from src.models.XCRISP.features import DELETION_FEATURES
 from src.data.data_loader import get_common_samples
 from src.config.test_setup import MIN_NUMBER_OF_READS
 
