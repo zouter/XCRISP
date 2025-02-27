@@ -7,6 +7,8 @@ from Bio.Seq import Seq
 from features import create_feature_array, onehotencoder
 from src.models.Lindel.indels import gen_indel
 
+from src.models.XCRISP.indels import get_inserted_sequence_position
+
 from src.data.data_loader import load_Tijsterman_data, get_details_from_fasta, load_FORECasT_data
 from src.config.test_setup import MIN_NUMBER_OF_READS
 
@@ -72,41 +74,52 @@ def correct_inDelphi(o):
 
 if __name__ == "__main__":
     FORECasT = ["test", "train", "HAP1_test", "HAP1_train", "TREX_A_train", "TREX_A_test", "2A_TREX_A_test"]
-    LUMC = ["WT", "POLQ", "KU80", "LIG4"]
+    # LUMC = ["WT", "POLQ", "KU80", "LIG4"]
     inDelphi = ["052218-U2OS-+-LibA-postCas9-rep1_transfertrain", "052218-U2OS-+-LibA-postCas9-rep1_transfertest", "0226-PRLmESC-Lib1-Cas9_transfertrain", "0226-PRLmESC-Lib1-Cas9_transfertest", "0105-mESC-Lib1-Cas9-Tol2-BioRep2-techrep1"]
-    DATASETS = FORECasT + inDelphi + LUMC
-    DATASETS = ["052218-U2OS-+-LibA-postCas9-rep1_transfertrain", "0226-PRLmESC-Lib1-Cas9_transfertrain",\
-        "052218-U2OS-+-LibA-postCas9-rep1_transfertest", "0226-PRLmESC-Lib1-Cas9_transfertest"]
+    DATASETS = FORECasT + inDelphi
+    # DATASETS = ["052218-U2OS-+-LibA-postCas9-rep1_transfertrain", "0226-PRLmESC-Lib1-Cas9_transfertrain",\
+        # "052218-U2OS-+-LibA-postCas9-rep1_transfertest", "0226-PRLmESC-Lib1-Cas9_transfertest"]
     output = OUTPUT_DIR + "/model_training/data_{}x/Lindel/Tijsterman_Analyser/".format(MIN_READS_PER_TARGET)
     os.makedirs(output, exist_ok=True)
     for t in DATASETS:
+        print(t)
         filename = t
         data = {}
-        labels, rev_index, features, frame_shift = pkl.load(open("model_prereq.pkl", 'rb'))
+        labels, rev_index, features, frame_shift = pkl.load(open("./src/models/Lindel/model_prereq.pkl", 'rb'))
         all_indels = map_indels_to_dataframe(rev_index)
 
         if t in FORECasT:
             parts = t.split("_")
-            guides = get_details_from_fasta("../../data/FORECasT/{}.fasta".format(parts[-1]))
-            t = "_".join(parts[:-1])
+            guides = get_details_from_fasta("./src/data/FORECasT/{}.fasta".format(parts[-1]))
+            if len(parts) > 1:
+                t = "_".join(parts[:-1])
         elif t in inDelphi:
             parts = t.split("_")
             if len(parts) == 1:
-                guides = get_details_from_fasta("../../data/inDelphi/LibA.forward.fasta")
+                guides = get_details_from_fasta("./src/data/inDelphi/LibA.forward.fasta")
             else:
-                guides = get_details_from_fasta("../../data/inDelphi/{}.fasta".format(parts[-1]))
+                guides = get_details_from_fasta("./src/data/inDelphi/{}.fasta".format(parts[-1]))
                 t = parts[0]
             for o in guides:
                 guides[o] = correct_inDelphi(guides[o])
         else:    
-            guides = get_details_from_fasta("../../data/LUMC/{}.forward.fasta".format(t))
+            guides = get_details_from_fasta("./src/data/LUMC/{}.forward.fasta".format(t))
 
         for g in tqdm(guides.values()):
-            counts = get_Tijsterman_counts(t, g["ID"], all_indels)
-            if type(counts) == bool: continue
-            if counts.sum() < MIN_READS_PER_TARGET: continue
             sequence = g["TargetSequence"]
             pam_index = g["PAM Index"]
+
+            # adjusting insertion indels per sequence
+            tmp_indels = all_indels.copy()
+            right_flank = sequence[pam_index-3:pam_index+20]
+            ins_indels_corrected_starts = tmp_indels[tmp_indels["Type"] == "ins"]\
+                .apply(lambda x: get_inserted_sequence_position(right_flank, x.InsSeq), axis=1)
+            tmp_indels.loc[tmp_indels["Type"] == "ins", "Start"] = ins_indels_corrected_starts
+
+            counts = get_Tijsterman_counts(t, g["ID"], tmp_indels)
+            if type(counts) == bool: continue
+            if counts.sum() < MIN_READS_PER_TARGET: continue
+
             input_indel, input_ins, input_del = get_features(sequence, pam_index)
             data[g["ID"]] = (all_indels.Indel.to_list(), counts, input_indel, input_ins, input_del, g)
         print(len(list(data.keys())))

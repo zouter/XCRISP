@@ -29,6 +29,15 @@ case "$1" in
         containers/lab.sif \
         mpiexec -n $2 /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.$3.prepare $4
         ;;
+    "prepare_lindel")
+        echo "Preparing data for Lindel"
+        apptainer exec --nv -C  \
+        -H $PROTONDDR/repos/x-crisp/ \
+        --env OUTPUT_DIR=$OUTPUT_DIR \
+        -B $OUTPUT_DIR:$OUTPUT_DIR \
+        containers/lab.sif \
+        /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.Lindel.prepare
+        ;;
     "deletion")
         echo "Training X-CRISP deletion model"
         apptainer exec --nv -C  \
@@ -90,7 +99,7 @@ case "$1" in
         fi
         ;;
     *)
-        echo "Please run one of the following commands: alignment_scores, transfer, test_transfer, deletion, prepare"
+        echo "Please run one of the following commands: alignment_scores, transfer, test_transfer, deletion, prepare, prepare_lindel"
         ;;
 esac
 
