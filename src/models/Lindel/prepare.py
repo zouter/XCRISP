@@ -4,7 +4,7 @@ import pandas as pd
 import pickle as pkl
 from tqdm import tqdm
 from Bio.Seq import Seq
-from features import create_feature_array, onehotencoder
+from src.models.Lindel.features import create_feature_array, onehotencoder
 from src.models.Lindel.indels import gen_indel
 
 from src.models.XCRISP.indels import get_inserted_sequence_position
