@@ -220,9 +220,9 @@ def plot(metrics, experiment_name):
     plt.close(fig2)
 
 
-def init_model(num_features, learning_rate, loss_function_str = "kld"):
+def init_model(num_features, learning_rate, loss_function_str = "kld", l2=0.00001):
     model = NeuralNetwork(num_features).to(DEVICE)
-    optimizer = torch.optim.Adam(model.parameters(), learning_rate, betas=(0.99, 0.999))
+    optimizer = torch.optim.Adam(model.parameters(), learning_rate, betas=(0.99, 0.999), weight_decay=l2)
     lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=0.999)
     loss_fn = kl_div if loss_function_str == "kld" else mse_loss
 
@@ -232,9 +232,11 @@ def init_model(num_features, learning_rate, loss_function_str = "kld"):
     print(optimizer)
     return model, optimizer, lr_scheduler, loss_fn
 
-def run_experiment(X, y, samples, experiment_name, do_CV=True, learning_rate=0.05, loss_function_str="kld"):
+def run_experiment(X, y, samples, experiment_name, do_CV=True, learning_rate=0.05, loss_function_str="kld", l2=0.00001):
     # set up tensorboard logger
     # writer = SummaryWriter(LOGS_DIR + experiment_name)
+
+    output_file = OUTPUT_MODEL_F.format(loss_function_str, learning_rate, l2)
 
     if do_CV:
         cv_folds = []
@@ -249,29 +251,29 @@ def run_experiment(X, y, samples, experiment_name, do_CV=True, learning_rate=0.0
         i = mpi_rank
 
         print("Training fold {} with {} samples, {} features".format(i, len(samples[f[0]]), X.shape[1]))
-        model, optimizer, lr_scheduler, loss_fn =init_model(X.shape[1], learning_rate, loss_function_str=loss_function_str)
+        model, optimizer, lr_scheduler, loss_fn = init_model(X.shape[1], learning_rate, loss_function_str=loss_function_str, l2=l2)
         loss, train_metrics, val_metrics = cv(X, y, samples[f[0]], samples[f[1]], i, model, loss_fn, optimizer, lr_scheduler, experiment_name=experiment_name, writer=None)
-        cv_folds = (loss, train_metrics[0], train_metrics[1], train_metrics[2], val_metrics[0], val_metrics[1], val_metrics[2])
+        cv_folds = (loss, l2, train_metrics[0], train_metrics[1], train_metrics[2], val_metrics[0], val_metrics[1], val_metrics[2])
 
         cv_folds = comm.gather(cv_folds, root=0)
 
         if mpi_rank == 0:
             print(cv_folds)
-            cv_df = pd.DataFrame(cv_folds, columns=["Loss", "Train Corr", "Train KLD", "Train MSE", "Val Corr", "Val KLD", "Val MSE"])
+            cv_df = pd.DataFrame(cv_folds, columns=["Loss", "L2", "Train Corr", "Train KLD", "Train MSE", "Val Corr", "Val KLD", "Val MSE"])
             cv_df.loc['mean'] = cv_df.mean()
-            cv_file = OUTPUT_MODEL_F.format(loss_function_str, learning_rate).replace("pth", "folds.tsv")
+            cv_file = output_file.replace("pth", "folds.tsv")
             cv_df.to_csv(cv_file, sep="\t")
 
             print("Cross Validation Finished. Results can be found under ", cv_file)
 
     # final training
     if mpi_rank == 0:
-        model, optimizer, lr_scheduler, loss_fn = init_model(X.shape[1], learning_rate, loss_function_str=loss_function_str)
+        model, optimizer, lr_scheduler, loss_fn = init_model(X.shape[1], learning_rate, loss_function_str=loss_function_str, l2=l2)
         train(X, y, samples, model, loss_fn, optimizer, lr_scheduler, writer = None, experiment_name=experiment_name)
 
         # save model
         os.makedirs(OUTPUT_MODEL_D, exist_ok=True)
-        torch.save(model, OUTPUT_MODEL_F.format(loss_function_str, learning_rate))
+        torch.save(model, output_file)
 
         torch.save({
             "random_state": RANDOM_STATE,
@@ -280,18 +282,18 @@ def run_experiment(X, y, samples, experiment_name, do_CV=True, learning_rate=0.0
             "loss_fn" : kl_div,
             "optimiser" : optimizer.state_dict(),
             "lr_scheduler": lr_scheduler.state_dict()
-        }, OUTPUT_MODEL_F.format(loss_function_str, learning_rate).replace("pth", "details"))
+        }, output_file.replace("pth", "details"))
         print("Training finished.".format(mpi_rank))
 
-        print("Model saved to:", OUTPUT_MODEL_F.format(loss_function_str, learning_rate))
+        print("Model saved to:", output_file)
 
 
-def load_model(loss_function_str = "kld", model_dir="./models/"):
+def load_model(loss_function_str = "kld", l2=0.00001, model_dir="./models/"):
     learning_rate = 0.1
     if loss_function_str == "mse":
         learning_rate = 0.05
 
-    model_d = "{}v4_{}_lr_{}_model.pth".format(model_dir, loss_function_str, learning_rate)
+    model_d = "{}deletion_{}_{}_l2_{}___mpi_model.pth".format(model_dir, loss_function_str, learning_rate, l2)
     model = torch.load(model_d)
     return model
 
@@ -306,7 +308,7 @@ if __name__ == "__main__":
     LOGS_DIR = os.environ['LOGS_DIR'] + TRAINING_DATA + "/"
     os.makedirs(LOGS_DIR, exist_ok=True)
     OUTPUT_MODEL_D = OUTPUT_DIR + "/model_training/model/X-CRISP/"
-    OUTPUT_MODEL_F = OUTPUT_MODEL_D + "deletion_{}_{}___mpi_model.pth"
+    OUTPUT_MODEL_F = OUTPUT_MODEL_D + "deletion_{}_{}_l2_{}___mpi_model.pth"
     NUM_FOLDS = mpi_size if mpi_size > 1 else 5
     RANDOM_STATE = 1
     EPOCHS = 200
@@ -331,6 +333,8 @@ if __name__ == "__main__":
     learning_rate = float(sys.argv[1])
     loss_function_str = sys.argv[2]
 
+    l2_weight_decay = float(sys.argv[3])
+
     # load data
     X, y, samples = load_data(dataset=TRAINING_DATA, num_samples=None)
 
@@ -338,9 +342,9 @@ if __name__ == "__main__":
     common_samples = get_common_samples(genotype=TRAINING_DATA, min_reads=MIN_READS_PER_TARGET)
     samples = np.intersect1d(samples, common_samples)
 
-    experiment_name = "{}_{}_{}".format(FEATURES, loss_function_str, learning_rate)
+    experiment_name = "{}_{}_{}_l2_{}".format(FEATURES, loss_function_str, learning_rate, l2_weight_decay)
 
-    print("Training on {} samples, with {} features, {} loss and a learning rate of {}".format(len(samples), X.shape[1], loss_function_str, learning_rate))
-    run_experiment(X.loc[:, FEATURE_SETS[FEATURES]], y, samples, experiment_name=experiment_name, do_CV=True, learning_rate=learning_rate, loss_function_str=loss_function_str)
+    print("Training on {} samples, with {} features, {} loss and a learning rate of {} and weight decay of {}".format(len(samples), X.shape[1], loss_function_str, learning_rate, l2_weight_decay))
+    run_experiment(X.loc[:, FEATURE_SETS[FEATURES]], y, samples, experiment_name=experiment_name, do_CV=True, learning_rate=learning_rate, loss_function_str=loss_function_str, l2=l2_weight_decay)
 
     print("Finished.")

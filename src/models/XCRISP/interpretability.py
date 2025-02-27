@@ -3,13 +3,12 @@
 import sys, os
 import torch
 print(torch.__version__)
-sys.path.append("../")
-from data_loader import get_common_samples
-from test_setup import MIN_NUMBER_OF_READS
+from src.data.data_loader import get_common_samples
+from src.config.test_setup import MIN_NUMBER_OF_READS
 import shap
 import random
 from sklearn.model_selection import train_test_split
-from src.models.XCRISP.__model import load_model, load_data, NeuralNetwork, FEATURE_SETS, _to_tensor
+from src.models.XCRISP.deletion import load_model, load_data, NeuralNetwork, FEATURE_SETS, _to_tensor
 from tqdm import tqdm
 import pandas as pd
 import numpy as np
@@ -38,7 +37,7 @@ if __name__ == "__main__":
     
     # Create Explainer on root, share to all processes
     if rank == 0:
-        model = load_model(feature_set="v4", loss="Base")
+        model = load_model(model=os.environ["OUTPUT_DIR"] + "/model_training/models/XCRISP/")
         model.eval()
         output_dir = os.environ["OUTPUT_DIR"] + "/model_shap_values/"
         os.makedirs(output_dir, exist_ok=True)
@@ -97,6 +96,6 @@ if __name__ == "__main__":
     data = comm.gather(data, root=0)
     if rank == 0:
         data = pd.concat(data)
-        data.to_csv(output_dir + "model_1_v4_{}.{}.shap.tsv".format(test_genotype, mh_or_mhless), sep="\t")
+        data.to_csv(output_dir + "deletion_mse_0.05___model__{}.{}.shap.tsv".format(test_genotype, mh_or_mhless), sep="\t")
     else:
         assert data is None

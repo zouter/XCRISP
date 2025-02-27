@@ -252,7 +252,7 @@ def run_experiment(X, y, samples, experiment_name, do_CV=True, learning_rate=0.0
     print("Model saved to", OUTPUT_MODEL_F.format(loss_function_str, learning_rate))
 
 def load_model(model_dir="./models/"):
-    model_d = "{}v4_{}_model.pth".format(model_dir)
+    model_d = "{}deletion_mse_0.05___model.pth".format(model_dir)
     model = torch.load(model_d)
     return model
 
