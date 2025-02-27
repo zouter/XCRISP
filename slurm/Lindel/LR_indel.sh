@@ -1,1 +1,1 @@
-sbatch $PROTONDDR/repos/x-crisp/slurm/XCRISP/LR_indel.batch train baseline
+sbatch $PROTONDDR/repos/x-crisp/slurm/Lindel/LR_indel.batch train baseline
