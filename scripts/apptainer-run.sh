@@ -49,14 +49,24 @@ case "$1" in
         mpiexec -n $2 /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.XCRISP.deletion $3 $4
         ;;
     "insertion")
-        echo "Training X-CRISP insertion model"
+        echo "Training Lindel insertion model"
         apptainer exec --nv -C  \
         -H $PROTONDDR/repos/x-crisp/ \
         --env OUTPUT_DIR=$OUTPUT_DIR \
         --env LOGS_DIR=$LOGS_DIR \
         -B $OUTPUT_DIR:$OUTPUT_DIR,$LOGS_DIR:$LOGS_DIR \
         containers/lab.sif \
-        /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.XCRISP.insertion 
+        /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.Lindel.LR_insertion train baseline 
+        ;;
+    "indel")
+        echo "Training Lindel indel model"
+        apptainer exec --nv -C  \
+        -H $PROTONDDR/repos/x-crisp/ \
+        --env OUTPUT_DIR=$OUTPUT_DIR \
+        --env LOGS_DIR=$LOGS_DIR \
+        -B $OUTPUT_DIR:$OUTPUT_DIR,$LOGS_DIR:$LOGS_DIR \
+        containers/lab.sif \
+        /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.Lindel.LR_indel train baseline 
         ;;
     "transfer")
         echo "Running transfer learning training"
@@ -99,7 +109,7 @@ case "$1" in
         fi
         ;;
     *)
-        echo "Please run one of the following commands: alignment_scores, transfer, test_transfer, deletion, prepare, prepare_lindel"
+        echo "Please run one of the following commands: alignment_scores, transfer, test_transfer, deletion, prepare, prepare_lindel, insertion, indel"
         ;;
 esac
 

@@ -11,4 +11,4 @@ module use /opt/insy/modulefiles
 module load devtoolset
 module load cuda/9.1 cudnn/9.1-7.0.5
 
-python3 /tudelft.net/staff-umbrella/protonddr/repos/repair-outcome-prediction/local/modelling/Lindel/LR_indel.py $1 $2
+./scripts/apptainer-run.sh indel

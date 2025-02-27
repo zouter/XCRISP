@@ -126,7 +126,7 @@ def run(data, workdir, prefix="", reg=None, pretrained_model=None, valid_data=No
 
     if reg is None:
         folds = list(kf.split(X, Y))
-        lambdas = 10 ** np.arange(-10, -1, 1.0) # for activation function test
+        lambdas = 10 ** np.arange(-10, -1, 0.1) # for activation function test
         errors_l1 = []
         errors_l2 = []
         def log_results(results):
@@ -157,7 +157,7 @@ def run(data, workdir, prefix="", reg=None, pretrained_model=None, valid_data=No
     print("Done.")
 
 def get_best_params(errors_l1, errors_l2):
-    lambdas = 10 ** np.arange(-10, -1, 1.0) # for activation function test
+    lambdas = 10 ** np.arange(-10, -1, 0.1) # for activation function test
     # find best params and train final model
     min_mean_l1, min_idx_l1 = average_fold_errors(errors_l1)
     min_mean_l2, min_idx_l2 = average_fold_errors(errors_l2)
