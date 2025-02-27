@@ -6,6 +6,8 @@ import os,sys,csv,re,random
 
 from tqdm import tqdm
 import numpy as np
+np.seterr(all='raise')
+
 import multiprocessing as mp
 
 from sklearn.model_selection import KFold, train_test_split
@@ -22,9 +24,12 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 tf.get_logger().setLevel('ERROR')
 
-sys.path.append("../")
-from data_loader import get_guides_from_fasta, get_common_samples
-from test_setup import MIN_NUMBER_OF_READS
+import logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+from src.data.data_loader import get_guides_from_fasta, get_common_samples
+from src.config.test_setup import MIN_NUMBER_OF_READS
 
 NUM_FOLDS = 5
 RANDOM_STATE = 1
@@ -33,6 +38,7 @@ OUTPUT_SIZE = 21
 NUM_TRANSFER_VAL_SAMPLES = 100
 MIN_READS_PER_TARGET = MIN_NUMBER_OF_READS
 TRANSFER_LEARNING_RATE = 0.001
+NUM_EPOCHS = 200
 
 # Define useful functions
 def mse(x, y):
@@ -73,16 +79,15 @@ def train_model(x_train, y_train, reg, x_valid=None, y_valid=None, pretrained_mo
         model = pretrained_model
         model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['mse'])
         K.set_value(model.optimizer.learning_rate, TRANSFER_LEARNING_RATE)
-        history = model.fit(x_train, y_train, epochs=200, verbose=1, validation_data=(x_valid, y_valid))
+        history = model.fit(x_train, y_train, epochs=NUM_EPOCHS, verbose=1, validation_data=(x_valid, y_valid))
         return model, None, history
     elif x_valid is not None and y_valid is not None:
-        history = model.fit(x_train, y_train, epochs=200, validation_data=(x_valid, y_valid), 
+        history = model.fit(x_train, y_train, epochs=NUM_EPOCHS, validation_data=(x_valid, y_valid), 
                 callbacks=[EarlyStopping(patience=1)], verbose=1)
         y_hat = model.predict(x_valid)
         return model, mse(y_hat, y_valid), history
     else:
-        history = model.fit(x_train, y_train, epochs=200, 
-                callbacks=[EarlyStopping(patience=1)], verbose=1)
+        history = model.fit(x_train, y_train, epochs=NUM_EPOCHS, verbose=1)
         return model, None, history
 
 def benchmark_models(X, Y, lambdas, split):
@@ -95,11 +100,10 @@ def benchmark_models(X, Y, lambdas, split):
     y_valid = Y[split[1], :]
 
     for l in tqdm(lambdas):
-        _, err = train_model(x_train, y_train, l1(l), x_valid=x_valid, y_valid=y_valid)
+        _, err, _ = train_model(x_train, y_train, l1(l), x_valid=x_valid, y_valid=y_valid)
         errors_l1.append(err)
-        _, err = train_model(x_train, y_train, l2(l), x_valid=x_valid, y_valid=y_valid)
-        errors_l2.append(err)
-    
+        _, err, _ = train_model(x_train, y_train, l2(l), x_valid=x_valid, y_valid=y_valid)
+        errors_l2.append(err)    
     return errors_l1, errors_l2
 
 def average_fold_errors(errors):
@@ -130,7 +134,7 @@ def run(data, workdir, prefix="", reg=None, pretrained_model=None, valid_data=No
             errors_l2.append(e2)
         pool = mp.Pool(5)
         for fold in folds:
-            pool.apply_async(benchmark_models, args=(X, Y, lambdas, fold, pretrained_model), callback = log_results)    
+            pool.apply_async(benchmark_models, args=(X, Y, lambdas, fold), callback=log_results)    
         pool.close()
         pool.join()
 
@@ -148,7 +152,7 @@ def run(data, workdir, prefix="", reg=None, pretrained_model=None, valid_data=No
         m, err, history = train_model(X, Y, reg, pretrained_model=pretrained_model, x_valid=X_valid, y_valid=Y_valid)
     
     m.save(workdir + '{}x_{}insertion.h5'.format(MIN_READS_PER_TARGET, prefix))
-    plot_training_curves(history, prefix)
+    # plot_training_curves(history, prefix)
 
     print("Done.")
 
@@ -216,12 +220,18 @@ def load_data():
 
 if __name__ == "__main__":
     mp.set_start_method("spawn")
-    # train_baseline_model()
-    if sys.argv[2] not in ["baseline", "pretrained"]:
-        print("experiment is not valid: ", sys.argv)
+    
+    experiment = sys.argv[2]
+
+    if experiment not in ["baseline", "pretrained"]:
+        print("experiment is not valid: ", experiment)
         exit()    
 
-    # for num_samples in [2, 5, 10, 20, 50, 100, 200, 500]:
-    for num_samples in [2000]:
-        TRANSFER_LEARNING_RATE = float(sys.argv[3])
-        transfer_model(sys.argv[1], num_samples, pretrained=sys.argv[2] == "pretrained")
+    if experiment == "baseline":
+        train_baseline_model()
+    elif experiment == "pretrained":
+        for num_samples in [2, 5, 10, 20, 50, 100, 200, 500]:
+            TRANSFER_LEARNING_RATE = float(sys.argv[3])
+            transfer_model(sys.argv[1], num_samples, pretrained=True)
+    else:
+        print("Invalid experiment.")
