@@ -7,22 +7,21 @@ from features import onehotencoder, create_feature_array
 from indels import gen_indel, gen_cmatrix
 from tensorflow import keras
 
-sys.path.append("../")
-from test_setup import read_test_file, TEST_FILES, MIN_NUMBER_OF_READS
-from data_loader import get_common_samples
+from src.config.test_setup import read_test_file, TEST_FILES, MIN_NUMBER_OF_READS
+from src.data.data_loader import get_common_samples
 
 MIN_NUM_READS = MIN_NUMBER_OF_READS
 PREPROCESSING = "Tijsterman_Analyser"
 OUTPUT_DIR = os.environ['OUTPUT_DIR']
 DATA_DIR = OUTPUT_DIR + "model_training/data_{}x/Lindel/Tijsterman_Analyser/".format(MIN_NUM_READS)
 PREDICTIONS_DIR = OUTPUT_DIR + "model_predictions/Lindel/"
-INSERTION_MODEL_F = "./models/{}x_insertion.h5".format(MIN_NUM_READS)
-DELETION_MODEL_F = "./models/{}x_deletion.h5".format(MIN_NUM_READS)
-INDEL_MODEL_F = "./models/{}x_indel.h5".format(MIN_NUM_READS)
+INSERTION_MODEL_F = "./models/Lindel/{}x_insertion.h5".format(MIN_NUM_READS)
+DELETION_MODEL_F = "./models/Lindel/{}x_deletion.h5".format(MIN_NUM_READS)
+INDEL_MODEL_F = "./models/Lindel/{}x_indel.h5".format(MIN_NUM_READS)
 
 
 def read_prereq():
-    return pkl.load(open("model_prereq.pkl", 'rb'))
+    return pkl.load(open("./src/models/Lindel/model_prereq.pkl", 'rb'))
 
 def gen_prediction(seq, models, prereq):
     '''generate the prediction for all classes, redundant classes will be combined'''
@@ -87,7 +86,7 @@ def run():
                 continue
         
         print(len(profiles))
-        pkl.dump(profiles , open(PREDICTIONS_DIR + "predictions_{}x_{}.pkl".format(MIN_NUM_READS, genotype), "wb"))  
+        pkl.dump(profiles , open(PREDICTIONS_DIR + "Lindel_{}.pkl".format(genotype), "wb"))  
 
 if __name__ == "__main__":
     run()

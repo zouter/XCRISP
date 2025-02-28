@@ -20,9 +20,8 @@ tf.get_logger().setLevel('ERROR')
 from tommassi_regularizer import MMKT
 from tradaboost import TrAdaBoostClassifier
 
-sys.path.append("../")
-from data_loader import get_guides_from_fasta, get_common_samples
-from test_setup import MIN_NUMBER_OF_READS
+from src.data.data_loader import get_guides_from_fasta, get_common_samples
+from src.config.test_setup import MIN_NUMBER_OF_READS
 
 NUM_FOLDS = 5
 RANDOM_STATE = 42
