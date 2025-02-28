@@ -68,6 +68,16 @@ case "$1" in
         containers/lab.sif \
         /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.Lindel.LR_indel train baseline 
         ;;
+    "shap")
+        echo "Running Shap analysis on XCRISP deletion model for $3 deletions"
+        apptainer exec --nv -C  \
+        -H $PROTONDDR/repos/x-crisp/ \
+        --env OUTPUT_DIR=$OUTPUT_DIR \
+        --env LOGS_DIR=$LOGS_DIR \
+        -B $OUTPUT_DIR:$OUTPUT_DIR,$LOGS_DIR:$LOGS_DIR \
+        containers/lab.sif \
+        mpiexec -n $2 /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.XCRISP.interpretability $3 $4
+        ;;
     "test")
         echo "Training XCRISP test"
         apptainer exec --nv -C  \

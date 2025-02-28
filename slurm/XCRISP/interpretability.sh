@@ -1,3 +1,3 @@
-sbatch interpretability.batch test all
-sbatch interpretability.batch test mh
-sbatch interpretability.batch test mhless
+sbatch $PROTONDDR/repos/x-crisp/slurm/XCRISP/interpretability.batch test all
+sbatch $PROTONDDR/repos/x-crisp/slurm/XCRISP/interpretability.batch test mh
+sbatch $PROTONDDR/repos/x-crisp/slurm/XCRISP/interpretability.batch test mhless
