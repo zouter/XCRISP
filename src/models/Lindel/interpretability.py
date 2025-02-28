@@ -3,7 +3,6 @@
 import sys, os, random
 import torch
 print(torch.__version__)
-sys.path.append("../")
 from src.data.data_loader import get_common_samples
 from src.config.test_setup import MIN_NUMBER_OF_READS
 from tensorflow import keras
@@ -28,7 +27,7 @@ model_to_explain = sys.argv[1]
 train_genotype = "train"
 output_dir = os.environ['OUTPUT_DIR']
 data_dir = output_dir + "model_training/data_100x/Lindel/Tijsterman_Analyser/"
-model_f = "./models/100x_{}.h5".format(model_to_explain)
+model_f = "./models/Lindel/100x_{}.h5".format(model_to_explain)
 background_samples_num = 5000
 samples_to_explain_num = 400
 
@@ -124,7 +123,7 @@ if __name__ == "__main__":
     background = comm.bcast(background, root=0)
 
     # get model weights and intercepts, and convert to sklearn linear model
-    prereq = pkl.load(open("model_prereq.pkl", 'rb'))
+    prereq = pkl.load(open("./src/models/Lindel/model_prereq.pkl", 'rb'))
     label,rev_index,features,frame_shift = prereq
     if model_to_explain == "insertion":
         classes = list(rev_index.values())[-21:]
