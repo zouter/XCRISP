@@ -106,7 +106,7 @@ case "$1" in
         --env LOGS_DIR=$LOGS_DIR \
         -B $OUTPUT_DIR:$OUTPUT_DIR,$LOGS_DIR:$LOGS_DIR \
         containers/lab.sif \
-        mpiexec -n $2 /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.Lindel.interpretability $3 
+        /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.Lindel.interpretability $3 
         ;;
     "transfer")
         echo "Running transfer learning training"

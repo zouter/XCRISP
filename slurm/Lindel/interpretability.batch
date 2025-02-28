@@ -16,4 +16,4 @@ export MKL_NUM_THREADS=1
 export OPENBLAS_NUM_THREADS=1
 export OMP_NUM_THREADS=1
 
-./scripts/apptainer-run.sh shap_analysis_lindel 10 $1
+./scripts/apptainer-run.sh shap_analysis_lindel $1
