@@ -5,13 +5,12 @@ import numpy as np
 import pandas as pd
 from Bio.Seq import Seq
 from tqdm import tqdm
-from src.models.XCRISP.__model import load_model, NeuralNetwork, FEATURE_SETS, LOSSES
+from src.models.XCRISP.deletion import load_model, NeuralNetwork, FEATURE_SETS
 
-sys.path.append("../")
-from test_setup import read_test_file, TEST_FILES, MIN_NUMBER_OF_READS
-from data_loader import get_common_samples
+from src.config.test_setup import read_test_file, TEST_FILES, MIN_NUMBER_OF_READS
+from src.data.data_loader import get_common_samples
 
-from Lindel.features import onehotencoder
+from src.models.Lindel.features import onehotencoder
 from tensorflow import keras
 
 import warnings
@@ -19,8 +18,9 @@ warnings.simplefilter(action='ignore', category=pd.errors.PerformanceWarning)
 
 OUTPUT_DIR = os.environ['OUTPUT_DIR']
 INPUT_F = OUTPUT_DIR + "/model_training/data_100x/X-CRISP/{}.pkl"
-INSERTION_MODEL_F = "../Lindel/models/100x_insertion.h5"
-INDEL_MODEL_F = "../Lindel/models/100x_indel.h5"
+INSERTION_MODEL_F = "./models/Lindel/100x_insertion.h5"
+INDEL_MODEL_F = "./models/Lindel/100x_indel.h5"
+XCRISPR_MODEL_D = "./models/XCRISP/"
 PREDICTIONS_DIR = OUTPUT_DIR + "model_predictions/X-CRISP/"
 MIN_NUM_READS = MIN_NUMBER_OF_READS
 VERBOSE = True
@@ -42,14 +42,15 @@ def load_data(dataset="test", num_samples = None):
 def run():
     os.makedirs(PREDICTIONS_DIR, exist_ok=True)
 
-    exp = "v4"
-    loss = "Base"
+    loss_fn = sys.argv[1]
+    lr = sys.argv[2]
     state = 1
         
-    deletion_model = load_model(exp, loss, num_reads=MIN_NUM_READS, random_state=state)
+    deletion_model = load_model(model_dir=XCRISPR_MODEL_D, loss_fn=loss_fn, learning_rate=lr)
     insertion_model = keras.models.load_model(INSERTION_MODEL_F)
     indel_model = keras.models.load_model(INDEL_MODEL_F)
     for dataset, oligo_file, genotype in TEST_FILES:
+        print()
         profiles = {}
         oligos = read_test_file(oligo_file)
         X_del, X_ins, y, samples = load_data(dataset=genotype, num_samples=None)
@@ -57,7 +58,7 @@ def run():
         # use common samples for experiment consistency
         common_samples = get_common_samples(genotype=genotype,min_reads=MIN_NUM_READS)
         oligos = [o for o in oligos if o["ID"] in common_samples]
-        print("Testing {} on {}".format(exp, genotype))
+        print("Testing {} {} on {}".format(loss_fn, lr, genotype))
 
         for o in tqdm(oligos):
             if o["ID"] not in samples: 
@@ -65,7 +66,7 @@ def run():
                 continue
             with torch.no_grad():
                 # deletion predictions from our Model
-                x = torch.tensor(X_del.loc[o["ID"], FEATURE_SETS[exp]].to_numpy()).float()
+                x = torch.tensor(X_del.loc[o["ID"], FEATURE_SETS["v4"]].to_numpy()).float()
                 ds = deletion_model(x)
                 ds = ds/sum(ds)
                 ds = ds.detach().numpy()[:, 0]
@@ -98,7 +99,7 @@ def run():
             } 
         print(len(profiles))
 
-        predictions_f = PREDICTIONS_DIR + "model_1_{}_RS_{}_{}.pkl".format(exp ,state, genotype)
+        predictions_f = PREDICTIONS_DIR + "XCRISP_{}_{}__{}.pkl".format(loss_fn, lr, genotype)
         if os.path.exists(predictions_f):
             os.remove(predictions_f)
         else:

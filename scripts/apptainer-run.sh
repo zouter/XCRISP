@@ -68,6 +68,16 @@ case "$1" in
         containers/lab.sif \
         /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.Lindel.LR_indel train baseline 
         ;;
+    "test")
+        echo "Training XCRISP test"
+        apptainer exec --nv -C  \
+        -H $PROTONDDR/repos/x-crisp/ \
+        --env OUTPUT_DIR=$OUTPUT_DIR \
+        --env LOGS_DIR=$LOGS_DIR \
+        -B $OUTPUT_DIR:$OUTPUT_DIR,$LOGS_DIR:$LOGS_DIR \
+        containers/lab.sif \
+        /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.XCRISP.test $2 $3
+        ;;
     "transfer")
         echo "Running transfer learning training"
         if [[ "$2" == *hpc* ]]; then
