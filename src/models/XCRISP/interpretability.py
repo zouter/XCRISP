@@ -37,7 +37,7 @@ if __name__ == "__main__":
     
     # Create Explainer on root, share to all processes
     if rank == 0:
-        model = load_model(model=os.environ["OUTPUT_DIR"] + "/model_training/models/XCRISP/")
+        model = load_model(model_dir="./models/XCRISP/")
         model.eval()
         output_dir = os.environ["OUTPUT_DIR"] + "/model_shap_values/"
         os.makedirs(output_dir, exist_ok=True)

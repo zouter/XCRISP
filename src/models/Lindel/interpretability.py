@@ -168,7 +168,8 @@ if __name__ == "__main__":
     if rank == 0:
         print(results.shape)
         print(samples_to_explain.shape)
-        output_f = output_dir + "{}_{}.shap.tsv".format(model_to_explain, test_genotype)
-        pkl.dump((results, samples_to_explain, X_test.columns, \
-            list(rev_index.values())[-21:]) if model_to_explain == "insertion" else ["Deletion %", "Insertion %"], open(output_f, "wb"))
+        output_f = output_dir + "{}_{}.shap.pkl".format(model_to_explain, test_genotype)
+        dumpable = (results, samples_to_explain, X_test.columns, \
+            (list(rev_index.values())[-21:]) if model_to_explain == "insertion" else ["Deletion %", "Insertion %"])
+        pkl.dump(dumpable, open(output_f, "wb"))
         print("Shap values saved to " + output_f)
