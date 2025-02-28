@@ -3,9 +3,10 @@ import numpy as np
 import pickle as pkl
 from tqdm import tqdm
 from Bio.Seq import Seq
-from features import onehotencoder, create_feature_array
-from indels import gen_indel, gen_cmatrix
 from tensorflow import keras
+
+from src.models.Lindel.features import onehotencoder, create_feature_array
+from src.models.Lindel.indels import gen_indel, gen_cmatrix
 
 from src.config.test_setup import read_test_file, TEST_FILES, MIN_NUMBER_OF_READS
 from src.data.data_loader import get_common_samples
