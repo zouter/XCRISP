@@ -38,7 +38,7 @@ OUTPUT_SIZE = 21
 NUM_TRANSFER_VAL_SAMPLES = 100
 MIN_READS_PER_TARGET = MIN_NUMBER_OF_READS
 TRANSFER_LEARNING_RATE = 0.001
-NUM_EPOCHS = 200
+NUM_EPOCHS = 2
 
 # Define useful functions
 def mse(x, y):
@@ -152,6 +152,7 @@ def run(data, workdir, prefix="", reg=None, pretrained_model=None, valid_data=No
         m, err, history = train_model(X, Y, reg, pretrained_model=pretrained_model, x_valid=X_valid, y_valid=Y_valid)
     
     m.save(workdir + '{}x_{}insertion.h5'.format(MIN_READS_PER_TARGET, prefix))
+    print("Model saved to ", workdir + '{}x_{}insertion.h5'.format(MIN_READS_PER_TARGET, prefix))
     # plot_training_curves(history, prefix)
 
     print("Done.")
