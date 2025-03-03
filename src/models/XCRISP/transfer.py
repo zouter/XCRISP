@@ -366,21 +366,21 @@ def run_experiment(X, y, samples, experiment_name, do_CV=False, mode="pretrained
         "loss_fn" : mse_loss,
         "optimiser" : optimizer.state_dict(),
         "lr_scheduler": lr_scheduler.state_dict()
-    }, OUTPUT_MODEL_F.format(experiment_name, RANDOM_STATE).replace("pth", "details"))
+    }, OUTPUT_MODEL_F.format(experiment_name).replace("pth", "details"))
 
 
-def load_pretrained_model(model_dir="./src/models/X-CRISP/models/"):
-    model_d = "{}Sigmoid_100x_{}_BaseLoss_RS_1_model.pth".format(model_dir, FEATURE_SET)
-    model = torch.load(model_d)
+def load_pretrained_model(model_dir="./models/XCRISP/"):
+    model_d = "{}deletion_kld_0.05___model.pth".format(model_dir)
+    model = torch.load(model_d, map_location=torch.device('cpu'))
     return model
 
 def load_model(mode, genotype_short_name, num_samples, model_dir="./src/models/XCRISP/models/"):
-    model_d = "{}transfer_kld_{}/transfer_kld_{}_{}_RS{}.pth".format(model_dir, genotype_short_name, mode, num_samples, 1)
+    model_d = "{}transfer_kld_{}/transfer_kld_{}_{}.pth".format(model_dir, genotype_short_name, mode, num_samples)
     model = torch.load(model_d)
     return model
 
 def load_transfer_learning_samples(dataset, n):
-    tr_samples = pd.read_pickle("./src/models/X-CRISP/transfer_{}.pkl".format(dataset))
+    tr_samples = pd.read_pickle("./src/models/XCRISP/transfer_{}.pkl".format(dataset))
     return np.array(tr_samples[n]), np.array(tr_samples["validation"])
 
 # set global vars
@@ -398,7 +398,7 @@ if __name__ == "__main__":
         LOGS_DIR = "./data/interim"
         os.makedirs(LOGS_DIR, exist_ok=True)
         OUTPUT_MODEL_D = OUTPUT_DIR + "/model_training/model/X-CRISP/transfer_kld_{}/".format(GENOTYPE_SHORT_NAME)
-        OUTPUT_MODEL_F = OUTPUT_MODEL_D + "{}_RS{}.pth"
+        OUTPUT_MODEL_F = OUTPUT_MODEL_D + "{}.pth"
         NUM_FOLDS = 5
         RANDOM_STATE = 1
         EPOCHS = 200

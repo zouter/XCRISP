@@ -128,6 +128,26 @@ case "$1" in
             /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.XCRISP.transfer pretrained 5 HAP1_train HAP1
         fi
         ;;
+    "transfer_indel")
+        echo "Running transfer learning training on indels"
+        apptainer exec --nv -C  \
+        -H $PROTONDDR/repos/x-crisp/ \
+        --env OUTPUT_DIR=$OUTPUT_DIR \
+        --env LOGS_DIR=$LOGS_DIR \
+        -B $OUTPUT_DIR:$OUTPUT_DIR,$LOGS_DIR:$LOGS_DIR \
+        containers/lab.sif \
+        /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.Lindel.LR_indel_transfer $2 $3
+        ;;
+    "transfer_insertion")
+        echo "Running transfer learning training on insertions"
+        apptainer exec --nv -C  \
+        -H $PROTONDDR/repos/x-crisp/ \
+        --env OUTPUT_DIR=$OUTPUT_DIR \
+        --env LOGS_DIR=$LOGS_DIR \
+        -B $OUTPUT_DIR:$OUTPUT_DIR,$LOGS_DIR:$LOGS_DIR \
+        containers/lab.sif \
+        /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.Lindel.LR_insertion_transfer $2 $3
+        ;;
     "test_transfer")
         echo "Running transfer learning testing"
         if [[ "$2" == *hpc* ]]; then

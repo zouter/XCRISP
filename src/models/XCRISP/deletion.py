@@ -251,7 +251,7 @@ def run_experiment(X, y, samples, experiment_name, do_CV=True, learning_rate=0.0
 
     print("Model saved to", OUTPUT_MODEL_F.format(loss_function_str, learning_rate))
 
-def load_model(model_dir="./models/", loss_fn="kld", learning_rate=0.1):
+def load_model(model_dir="./models/", loss_fn="kld", learning_rate=0.05):
     model_d = "{}deletion_{}_{}___model.pth".format(model_dir, loss_fn, learning_rate)
     model = torch.load(model_d, map_location=torch.device('cpu'))
     return model

@@ -289,9 +289,9 @@ def run_experiment(X, y, samples, experiment_name, do_CV=True, learning_rate=0.0
 
 
 def load_model(loss_function_str = "kld", l2=0.00001, model_dir="./models/"):
-    learning_rate = 0.1
+    learning_rate = 0.05
     if loss_function_str == "mse":
-        learning_rate = 0.05
+        learning_rate = 0.01
 
     model_d = "{}deletion_{}_{}_l2_{}___mpi_model.pth".format(model_dir, loss_function_str, learning_rate, l2)
     model = torch.load(model_d)

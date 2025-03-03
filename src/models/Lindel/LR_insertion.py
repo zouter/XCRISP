@@ -173,7 +173,7 @@ def get_best_params(errors_l1, errors_l2):
     return best_lambda, reg
 
 def load_transfer_learning_samples(dataset, n):
-    with open("../X-CRISP/transfer_{}.pkl".format(dataset), "rb") as openfile:
+    with open("./src/models/XCRISP/transfer_{}.pkl".format(dataset), "rb") as openfile:
         tr_samples = pkl.load(openfile)
     return np.array(tr_samples[n]), np.array(tr_samples["validation"])
 
@@ -203,7 +203,7 @@ def transfer_model(genotype, num_samples, pretrained=True):
     guides, val_guides = load_transfer_learning_samples(genotype, num_samples)
     train_data = [d for d in data if d[5]["ID"] in guides]
     valid_data = [d for d in data if d[5]["ID"] in val_guides]
-    pretrained_model = load_model('./models/{}x_{}insertion.h5'.format(MIN_READS_PER_TARGET, ""))
+    pretrained_model = load_model('./models/Lindel/{}x_{}insertion.h5'.format(MIN_READS_PER_TARGET, ""))
     reg = pretrained_model.layers[0].kernel_regularizer
     if pretrained:
         run(train_data, workdir, reg=reg, prefix="transfer_" + str(TRANSFER_LEARNING_RATE) + "_" + mappings[genotype] + "_" + str(num_samples) + "_", pretrained_model=pretrained_model, valid_data=valid_data)
@@ -231,7 +231,7 @@ if __name__ == "__main__":
         train_baseline_model()
     elif experiment == "pretrained":
         for num_samples in [2, 5, 10, 20, 50, 100, 200, 500]:
-            TRANSFER_LEARNING_RATE = float(sys.argv[3])
+            # TRANSFER_LEARNING_RATE = float(sys.argv[3])
             transfer_model(sys.argv[1], num_samples, pretrained=True)
     else:
         print("Invalid experiment.")
