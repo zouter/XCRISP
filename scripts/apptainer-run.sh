@@ -136,7 +136,7 @@ case "$1" in
         --env LOGS_DIR=$LOGS_DIR \
         -B $OUTPUT_DIR:$OUTPUT_DIR,$LOGS_DIR:$LOGS_DIR \
         containers/lab.sif \
-        /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.Lindel.LR_indel_transfer $2 $3
+        /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.Lindel.LR_indel $2 $3
         ;;
     "transfer_insertion")
         echo "Running transfer learning training on insertions"
@@ -146,7 +146,7 @@ case "$1" in
         --env LOGS_DIR=$LOGS_DIR \
         -B $OUTPUT_DIR:$OUTPUT_DIR,$LOGS_DIR:$LOGS_DIR \
         containers/lab.sif \
-        /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.Lindel.LR_insertion_transfer $2 $3
+        /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.Lindel.LR_insertion $2 $3
         ;;
     "test_transfer")
         echo "Running transfer learning testing"
