@@ -202,10 +202,10 @@ def transfer_model(genotype, num_samples, pretrained=True):
     pretrained_model = load_model('./models/Lindel/{}x_{}indel.h5'.format(MIN_READS_PER_TARGET, ""))
     reg = pretrained_model.layers[0].kernel_regularizer
     if pretrained:
-        run(train_data, workdir, reg=reg, prefix="transfer_" + mappings[genotype] + "_" + str(num_samples) + "_", pretrained_model=pretrained_model, valid_data=valid_data)
+        run(train_data, workdir, reg=reg, prefix="transfer_" + mappings[genotype] + "_" + str(num_samples) + "_", pretrained_model=pretrained_model, valid_data=None)
     else:
         pretrained_model = None # we just want the same regulariser as in the pretrained model
-        run(train_data, workdir, reg=reg, prefix="baseline_" + mappings[genotype] + "_" + str(num_samples) + "_", pretrained_model=None, valid_data=valid_data)
+        run(train_data, workdir, reg=reg, prefix="baseline_" + mappings[genotype] + "_" + str(num_samples) + "_", pretrained_model=None, valid_data=None)
 
 def train_baseline_model():
     workdir = os.environ["OUTPUT_DIR"] + "model_training/model/Lindel/"
