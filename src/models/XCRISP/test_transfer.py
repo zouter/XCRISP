@@ -5,8 +5,9 @@ import numpy as np
 import pandas as pd
 from Bio.Seq import Seq
 from tqdm import tqdm
-from src.models.XCRISP.transfer import load_model, NeuralNetwork, TransferNeuralNetwork, TransferNeuralNetworkWithOneExtraHiddenLayer, TransferNeuralNetworkOneFrozenLayer
-from src.models.XCRISP.__model import FEATURE_SETS
+from src.models.XCRISP.transfer import load_model, load_pretrained_model, NeuralNetwork, \
+    TransferNeuralNetwork, TransferNeuralNetworkWithOneExtraHiddenLayer, TransferNeuralNetworkOneFrozenLayer
+from src.models.XCRISP.deletion import FEATURE_SETS
 from src.config.test_setup  import read_test_file, TRANSFER_TEST_FILES
 from src.data.data_loader import get_common_samples
 from src.models.Lindel.features import onehotencoder
@@ -16,9 +17,11 @@ import warnings
 warnings.simplefilter(action='ignore', category=pd.errors.PerformanceWarning)
 
 OUTPUT_DIR = os.environ['OUTPUT_DIR'] if 'OUTPUT_DIR' in os.environ else "./data/Transfer"
-INPUT_F = OUTPUT_DIR + "/model_training/data_100x/OurModel/{}.pkl"
-INSERTION_MODEL_F = "./src/models/Lindel/models/100x_{}_{}_{}_insertion.h5"
-INDEL_MODEL_F = "./src/models/Lindel/models/100x_{}_{}_{}_indel.h5"
+INPUT_F = OUTPUT_DIR + "/model_training/data_100x/X-CRISP/{}.pkl"
+BASELINE_INSERTION_MODEL_F = "./models/Lindel/100x_insertion.h5"
+BASELINE_INDEL_MODEL_F = "./models/Lindel/100x_insertion.h5"
+INSERTION_MODEL_F = "./models/Lindel/100x_{}_{}_{}_insertion.h5"
+INDEL_MODEL_F = "./models/Lindel/100x_{}_{}_{}_indel.h5"
 PREDICTIONS_DIR = OUTPUT_DIR + "model_predictions/X-CRISP/"
 VERBOSE = False
 
@@ -54,14 +57,16 @@ def run():
         exit()
 
     for dataset, oligo_file, genotype, genotype_short_name in TRANSFER_TEST_FILES:
-        deletion_model = load_model(mode, genotype_short_name, num_samples)
+        
         
         if mode == "baseline":
-            insertion_model = keras.models.load_model(INSERTION_MODEL_F.format(mode, genotype_short_name, num_samples))
-            indel_model = keras.models.load_model(INDEL_MODEL_F.format(mode, genotype_short_name, num_samples))
+            insertion_model = keras.models.load_model(BASELINE_INSERTION_MODEL_F)
+            indel_model = keras.models.load_model(BASELINE_INDEL_MODEL_F)
+            deletion_model = load_pretrained_model(mode, genotype_short_name, num_samples)
         else:
-            insertion_model = keras.models.load_model(INSERTION_MODEL_F.format("transfer", genotype_short_name, num_samples))
+            insertion_model = keras.models.load_model(INSERTION_MODEL_F.format("transfer_0.001", genotype_short_name, num_samples))
             indel_model = keras.models.load_model(INDEL_MODEL_F.format("transfer", genotype_short_name, num_samples))
+            deletion_model = load_model(mode, genotype_short_name, num_samples)
 
         profiles = {}
         oligos = read_test_file(oligo_file)
@@ -99,7 +104,8 @@ def run():
             y_hat = np.concatenate((ds*dratio,ins*insratio),axis=None)
 
             # get labels
-            ins_labels = ['1+A', '1+T', '1+C', '1+G', '2+AA', '2+AT', '2+AC', '2+AG', '2+TA', '2+TT', '2+TC', '2+TG', '2+CA', '2+CT', '2+CC', '2+CG', '2+GA', '2+GT', '2+GC', '2+GG', '3+X']
+            ins_labels = ['1+A', '1+T', '1+C', '1+G', '2+AA', '2+AT', '2+AC', '2+AG', '2+TA', '2+TT', \
+                          '2+TC', '2+TG', '2+CA', '2+CT', '2+CC', '2+CG', '2+GA', '2+GT', '2+GC', '2+GG', '3+X']
             y_obs = y.loc[o["ID"]]
             indels = list(y_obs.index[y_obs.Type == "DELETION"]) + ins_labels
             y_obs = y_obs.loc[indels]
@@ -111,7 +117,7 @@ def run():
                 "mh": (X_del.loc[o["ID"], "homologyLength"] > 0).to_list()
             } 
 
-        predictions_f = PREDICTIONS_DIR + "transfer_kld_{}_{}_RS_1_{}.pkl".format(mode, num_samples, genotype)
+        predictions_f = PREDICTIONS_DIR + "XCRISP_transfer_kld_{}_{}__{}.pkl".format(mode, num_samples, genotype)
         if os.path.exists(predictions_f):
             os.remove(predictions_f)
         else:
@@ -135,7 +141,8 @@ def run_gold_standard_comparison():
                 if VERBOSE: print(2, o["ID"])
                 continue
 
-            ins_labels = ['1+A', '1+T', '1+C', '1+G', '2+AA', '2+AT', '2+AC', '2+AG', '2+TA', '2+TT', '2+TC', '2+TG', '2+CA', '2+CT', '2+CC', '2+CG', '2+GA', '2+GT', '2+GC', '2+GG', '3+X']
+            ins_labels = ['1+A', '1+T', '1+C', '1+G', '2+AA', '2+AT', '2+AC', '2+AG', '2+TA', '2+TT', \
+                          '2+TC', '2+TG', '2+CA', '2+CT', '2+CC', '2+CG', '2+GA', '2+GT', '2+GC', '2+GG', '3+X']
             y_obs = y.loc[o["ID"]]
             indels = list(y_obs.index[y_obs.Type == "DELETION"]) + ins_labels
             y_obs = y_obs.loc[indels]
@@ -175,7 +182,8 @@ def run_wild_type_mESC_comparison():
                 if VERBOSE: print(2, o["ID"])
                 continue
 
-            ins_labels = ['1+A', '1+T', '1+C', '1+G', '2+AA', '2+AT', '2+AC', '2+AG', '2+TA', '2+TT', '2+TC', '2+TG', '2+CA', '2+CT', '2+CC', '2+CG', '2+GA', '2+GT', '2+GC', '2+GG', '3+X']
+            ins_labels = ['1+A', '1+T', '1+C', '1+G', '2+AA', '2+AT', '2+AC', '2+AG', '2+TA', '2+TT', \
+                          '2+TC', '2+TG', '2+CA', '2+CT', '2+CC', '2+CG', '2+GA', '2+GT', '2+GC', '2+GG', '3+X']
             y_obs = y.loc[o["ID"]]
             indels = list(y_obs.index[y_obs.Type == "DELETION"]) + ins_labels
             y_obs = y_obs.loc[indels]

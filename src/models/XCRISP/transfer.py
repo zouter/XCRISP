@@ -374,7 +374,7 @@ def load_pretrained_model(model_dir="./models/XCRISP/"):
     model = torch.load(model_d, map_location=torch.device('cpu'))
     return model
 
-def load_model(mode, genotype_short_name, num_samples, model_dir="./src/models/XCRISP/models/"):
+def load_model(mode, genotype_short_name, num_samples, model_dir="./models/XCRISP/"):
     model_d = "{}transfer_kld_{}/transfer_kld_{}_{}.pth".format(model_dir, genotype_short_name, mode, num_samples)
     model = torch.load(model_d)
     return model
