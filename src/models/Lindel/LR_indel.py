@@ -222,16 +222,13 @@ def load_data():
 if __name__ == "__main__":
     mp.set_start_method("spawn")
     
+    genotype = sys.argv[1]
     experiment = sys.argv[2]
-
-    if experiment not in ["baseline", "pretrained"]:
-        print("experiment is not valid: ", experiment)
-        exit()    
-
-    if experiment == "baseline":
-        train_baseline_model()
-    elif experiment == "pretrained":
+ 
+    if experiment in ["pretrained", "baseline"]:
         for num_samples in [2, 5, 10, 20, 50, 100, 200, 500]:
-            transfer_model(sys.argv[1], num_samples, pretrained=True)
+            print(f"Running {experiment} experiment on {num_samples} samples of {genotype} data")
+            transfer_model(genotype, num_samples, pretrained=experiment=="pretrained")
     else:
-        print("Invalid experiment.")
+        print("No experiment experiment defined, training base model on mESC data")
+        train_baseline_model()

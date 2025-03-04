@@ -18,8 +18,6 @@ warnings.simplefilter(action='ignore', category=pd.errors.PerformanceWarning)
 
 OUTPUT_DIR = os.environ['OUTPUT_DIR'] if 'OUTPUT_DIR' in os.environ else "./data/Transfer"
 INPUT_F = OUTPUT_DIR + "/model_training/data_100x/X-CRISP/{}.pkl"
-BASELINE_INSERTION_MODEL_F = "./models/Lindel/100x_insertion.h5"
-BASELINE_INDEL_MODEL_F = "./models/Lindel/100x_insertion.h5"
 INSERTION_MODEL_F = "./models/Lindel/100x_{}_{}_{}_insertion.h5"
 INDEL_MODEL_F = "./models/Lindel/100x_{}_{}_{}_indel.h5"
 PREDICTIONS_DIR = OUTPUT_DIR + "model_predictions/X-CRISP/"
@@ -57,16 +55,14 @@ def run():
         exit()
 
     for dataset, oligo_file, genotype, genotype_short_name in TRANSFER_TEST_FILES:
-        
-        
+        deletion_model = load_pretrained_model(mode, genotype_short_name, num_samples)
+
         if mode == "baseline":
-            insertion_model = keras.models.load_model(BASELINE_INSERTION_MODEL_F)
-            indel_model = keras.models.load_model(BASELINE_INDEL_MODEL_F)
-            deletion_model = load_pretrained_model(mode, genotype_short_name, num_samples)
+            insertion_model = keras.models.load_model(INSERTION_MODEL_F.format("transfer_0.001", genotype_short_name, num_samples))
+            indel_model = keras.models.load_model(INDEL_MODEL_F.format("transfer", genotype_short_name, num_samples))
         else:
             insertion_model = keras.models.load_model(INSERTION_MODEL_F.format("transfer_0.001", genotype_short_name, num_samples))
             indel_model = keras.models.load_model(INDEL_MODEL_F.format("transfer", genotype_short_name, num_samples))
-            deletion_model = load_model(mode, genotype_short_name, num_samples)
 
         profiles = {}
         oligos = read_test_file(oligo_file)
