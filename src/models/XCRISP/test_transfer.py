@@ -55,11 +55,11 @@ def run():
         exit()
 
     for dataset, oligo_file, genotype, genotype_short_name in TRANSFER_TEST_FILES:
-        deletion_model = load_pretrained_model(mode, genotype_short_name, num_samples)
+        deletion_model = load_pretrained_model()
 
         if mode == "baseline":
-            insertion_model = keras.models.load_model(INSERTION_MODEL_F.format("transfer_0.001", genotype_short_name, num_samples))
-            indel_model = keras.models.load_model(INDEL_MODEL_F.format("transfer", genotype_short_name, num_samples))
+            insertion_model = keras.models.load_model(INSERTION_MODEL_F.format("baseline", genotype_short_name, num_samples))
+            indel_model = keras.models.load_model(INDEL_MODEL_F.format("baseline", genotype_short_name, num_samples))
         else:
             insertion_model = keras.models.load_model(INSERTION_MODEL_F.format("transfer_0.001", genotype_short_name, num_samples))
             indel_model = keras.models.load_model(INDEL_MODEL_F.format("transfer", genotype_short_name, num_samples))
