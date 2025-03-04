@@ -79,7 +79,7 @@ def train_model(x_train, y_train, reg, x_valid=None, y_valid=None, pretrained_mo
         model = pretrained_model
         model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['mse'])
         K.set_value(model.optimizer.learning_rate, TRANSFER_LEARNING_RATE)
-        history = model.fit(x_train, y_train, epochs=NUM_EPOCHS, verbose=1, validation_data=(x_valid, y_valid))
+        history = model.fit(x_train, y_train, epochs=NUM_EPOCHS, verbose=1)
         return model, None, history
     elif x_valid is not None and y_valid is not None:
         history = model.fit(x_train, y_train, epochs=NUM_EPOCHS, validation_data=(x_valid, y_valid), 
