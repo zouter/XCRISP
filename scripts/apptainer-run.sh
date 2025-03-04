@@ -109,7 +109,7 @@ case "$1" in
         /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.Lindel.interpretability $3 
         ;;
     "transfer")
-        echo "Running transfer learning training"
+        echo "Running transfer learning training $3 $4 $5 $6"
         if [[ "$2" == *hpc* ]]; then
             echo "Environment variable contains 'hpc'"
             apptainer exec --nv -C  \
