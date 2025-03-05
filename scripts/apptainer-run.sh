@@ -48,6 +48,16 @@ case "$1" in
         containers/lab.sif \
         mpiexec -n $2 /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.XCRISP.deletion $3 $4
         ;;
+    "compare_tl")
+        echo "Compare TL methods"
+        apptainer exec --nv -C  \
+        -H $PROTONDDR/repos/x-crisp/ \
+        --env OUTPUT_DIR=$OUTPUT_DIR \
+        --env LOGS_DIR=$LOGS_DIR \
+        -B $OUTPUT_DIR:$OUTPUT_DIR,$LOGS_DIR:$LOGS_DIR \
+        containers/lab.sif \
+        /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.analysis.transfer_learning_comparisons
+        ;;
     "insertion")
         echo "Training Lindel insertion model"
         apptainer exec --nv -C  \

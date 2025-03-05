@@ -20,14 +20,12 @@ from src.data.data_loader import get_details_from_fasta
 
 
 MIN_NUM_READS = 100
-REP2_COUNTS_F = os.environ["OUTPUT_DIR"] + "/model_predictions/OurModel/replicate_{}.pkl"
-mESC_WT_COUNTS_F = os.environ["OUTPUT_DIR"] + "/model_predictions/OurModel/mESC_WT_{}.pkl"
-CRISPRedict_PREDICTIONS_F = os.environ["OUTPUT_DIR"] + "/model_predictions/OurModel/model_v4_kld_{}.pkl"
-CRISPRedict_MSE_PREDICTIONS_F = os.environ["OUTPUT_DIR"] + "/model_predictions/OurModel/model_1_v4_RS_1_{}.pkl"
+# mESC_WT_COUNTS_F = os.environ["OUTPUT_DIR"] + "/model_predictions/XCRISP/mESC_WT_{}.pkl"
+XCRISP_PREDICTIONS_F = os.environ["OUTPUT_DIR"] + "/model_predictions/X-CRISP/XCRISP_kld_0.05__{}.pkl"
 INDELPHI_PREDICTIONS_F = os.environ["OUTPUT_DIR"] + "/model_predictions/OurModel/predictions_{}x_{}_indelphi.pkl"
-LINDEL_PREDICTIONS_F = os.environ["OUTPUT_DIR"] + "/model_predictions/Lindel/predictions_{}x_{}.pkl"
+LINDEL_PREDICTIONS_F = os.environ["OUTPUT_DIR"] + "/model_predictions/Lindel/Lindel_{}.pkl"
 FORECasT_PREDICTIONS_F = os.environ["OUTPUT_DIR"] + "/model_predictions/FORECasT/predictions_{}x_{}.pkl"
-TRANSFER_PREDICTIONS_F = os.environ["OUTPUT_DIR"] + "/model_predictions/OurModel/transfer_kld_{}_{}_RS_1_{}.pkl"
+TRANSFER_PREDICTIONS_F = os.environ["OUTPUT_DIR"] + "/model_predictions/X-CRISP/XCRISP_transfer_kld_{}_{}__{}.pkl"
 TEST_FILES = ["052218-U2OS-+-LibA-postCas9-rep1_transfertest", "0226-PRLmESC-Lib1-Cas9_transfertest", "HAP1_test", "TREX_A_test"]
 # TEST_FILES = ["052218-U2OS-+-LibA-postCas9-rep1_transfertest"]
 
@@ -39,13 +37,8 @@ data = {}
 #     exit()
 for i, t in enumerate(TEST_FILES):
     data[t] = {}
-    data[t]["CRISPRedict"] = pkl.load(open(CRISPRedict_PREDICTIONS_F.format(t), 'rb'))
-    # data[t]["CRISPRedict MSE"] = pkl.load(open(CRISPRedict_MSE_PREDICTIONS_F.format(t), 'rb'))
-    # # if os.path.exists(REP2_COUNTS_F.format(t)):
-    #     # data[t]["Replicate"] = pkl.load(open(REP2_COUNTS_F.format(t), 'rb'))
-    # # if os.path.exists(mESC_WT_COUNTS_F.format(t)):
-    # #     data[t]["mESC WT"] = pkl.load(open(mESC_WT_COUNTS_F.format(t), 'rb'))
-    data[t]["Lindel"] = pkl.load(open(LINDEL_PREDICTIONS_F.format(MIN_NUM_READS, t), 'rb'))
+    data[t]["XCRISP"] = pkl.load(open(XCRISP_PREDICTIONS_F.format(t), 'rb'))
+    data[t]["Lindel"] = pkl.load(open(LINDEL_PREDICTIONS_F.format(t), 'rb'))
     data[t]["FORECasT"] = pkl.load(open(FORECasT_PREDICTIONS_F.format(MIN_NUM_READS, t), 'rb'))
     data[t]["inDelphi"] = pkl.load(open(INDELPHI_PREDICTIONS_F.format(MIN_NUM_READS, t), 'rb'))
 
@@ -71,7 +64,7 @@ for t in TEST_FILES:
 common_oligos = {}
 for t in TEST_FILES:
     all_t = []
-    all_t.append(np.array(list(data[t]["CRISPRedict"].keys())))
+    all_t.append(np.array(list(data[t]["XCRISP"].keys())))
     all_t.append(np.array(list(data[t]["inDelphi"].keys())))
     all_t.append(np.array(list(data[t]["Lindel"].keys())))
     all_t.append(np.array(list(data[t]["FORECasT"].keys())))
@@ -172,199 +165,201 @@ print("Reversed mapping")
 print(rev_ins_mapping[t][o])
 
 def is_insertion(indel, method):
-    if method in ["CRISPRedict", "Lindel", "inDelphi"] or "transfer" in method:
+    if method in ["XCRISP", "Lindel", "inDelphi"] or "transfer" in method:
         return indel in common_insertions or indel == "3" or indel == "3+X"
     if method == "FORECasT":
         return indel[0] == "I"
 
 # collect predicted data into dataframe
-# rows = []
-# indices = []
-# for t in TEST_FILES:
-#     test_f = file_mapping[t]
-#     for method in tqdm(data[t].keys()):
-#         print(method)
-#         for target_site in common_oligos[t]:
-#             if target_site == "Oligo_10007" and method == 'FORECasT':
-#                 print(target_site, method)
+rows = []
+indices = []
+for t in TEST_FILES:
+    test_f = file_mapping[t]
+    for method in tqdm(data[t].keys()):
+        print(method, t)
+        for target_site in common_oligos[t]:
+            if target_site == "Oligo_10007" and method == 'FORECasT':
+                print(target_site, method)
 
-#             indels = np.array(data[t][method][target_site]["indels"]) 
-#             predicted = np.array(data[t][method][target_site]["predicted"]).astype(float) # Q
-#             predicted = predicted/sum(predicted)
-#             observed = np.array(data[t][method][target_site]["actual"]).astype(float)
-#             observed = observed/sum(observed) # P
-#             indices.append((test_f, method, target_site))
-#             correlation = np.corrcoef(predicted, observed)[0,1]
-#             kl_divergence = entropy(observed, predicted)
-#             js = jensenshannon(observed, predicted)
-#             rows.append([correlation, kl_divergence, js])
+            indels = np.array(data[t][method][target_site]["indels"]) 
+            predicted = np.array(data[t][method][target_site]["predicted"]).astype(float) # Q
+            predicted = predicted/sum(predicted)
+            observed = np.array(data[t][method][target_site]["actual"]).astype(float)
+            observed = observed/sum(observed) # P
+            indices.append((test_f, method, target_site))
+            correlation = np.corrcoef(predicted, observed)[0,1]
+            kl_divergence = entropy(observed, predicted)
+            js = jensenshannon(observed, predicted)
+            rows.append([correlation, kl_divergence, js])
 
-# indices = pd.MultiIndex.from_tuples(indices, names=["Dataset", "Method", "Target Site"])
-# df = pd.DataFrame(rows, index=indices, columns=["Pearson's Correlation", "KL Divergence", "Jensen Shannon"])
-# inf_oligos = df[~np.isfinite(df["KL Divergence"])].index.get_level_values(2)
-# df = df[~df.index.get_level_values(2).isin(inf_oligos)]
-# df.to_csv(os.environ["OUTPUT_DIR"] + "/Results/Transfer_Learning/overall.tsv", sep="\t")
+indices = pd.MultiIndex.from_tuples(indices, names=["Dataset", "Method", "Target Site"])
+df = pd.DataFrame(rows, index=indices, columns=["Pearson's Correlation", "KL Divergence", "Jensen Shannon"])
+inf_oligos = df[~np.isfinite(df["KL Divergence"])].index.get_level_values(2)
+df = df[~df.index.get_level_values(2).isin(inf_oligos)]
+df.to_csv(os.environ["OUTPUT_DIR"] + "/Results/Transfer_Learning/overall.tsv", sep="\t")
 
-# print("Calculated overall results")
+print("Calculated overall results")
 
-# # collect predicted data into dataframe
-# rows = []
-# indices = []
-# for t in TEST_FILES:
-#     test_f = file_mapping[t]
-#     for method in tqdm(data[t].keys()):
-#         print(method)
-#         for target_site in common_oligos[t]:
-#             indels = np.array(data[t][method][target_site]["indels"])
-#             # deletions = np.array([not is_insertion(x, method) for x in indels])
-#             if method == "CRISPRedict" or "transfer" in method:
-#                 mh = np.array(data[t][method][target_site]["mh"] + ([False] * 21)) 
-#             else:
-#                 mh = np.array(data[t][method][target_site]["mh"])
-#             predicted = np.array(data[t][method][target_site]["predicted"])[mh].astype(float) # Q
-#             observed = np.array(data[t][method][target_site]["actual"])[mh].astype(float) # P
+# collect predicted data into dataframe
+rows = []
+indices = []
+for t in TEST_FILES:
+    test_f = file_mapping[t]
+    for method in tqdm(data[t].keys()):
+        print(method)
+        for target_site in common_oligos[t]:
+            indels = np.array(data[t][method][target_site]["indels"])
+            deletions = np.array([not is_insertion(x, method) for x in indels])
+            if "transfer" in method:
+                mh = np.array(data[t][method][target_site]["mh"] + ([False] * 21)) 
+            else:
+                mh = np.array(data[t][method][target_site]["mh"])
+            predicted = np.array(data[t][method][target_site]["predicted"])[mh].astype(float) # Q
+            observed = np.array(data[t][method][target_site]["actual"])[mh].astype(float) # P
 
-#             predicted = predicted/sum(predicted)
-#             observed = observed/sum(observed)
+            predicted = predicted/sum(predicted)
+            observed = observed/sum(observed)
 
-#             # then calculate
-#             indices.append((test_f, method, target_site))
-#             correlation = np.corrcoef(predicted, observed)[0,1]
-#             kl_divergence = entropy(observed, predicted)
-#             js = jensenshannon(observed, predicted)
-#             rows.append([correlation, kl_divergence, js])
+            # then calculate
+            indices.append((test_f, method, target_site))
+            correlation = np.corrcoef(predicted, observed)[0,1]
+            kl_divergence = entropy(observed, predicted)
+            js = jensenshannon(observed, predicted)
+            rows.append([correlation, kl_divergence, js])
 
-# indices = pd.MultiIndex.from_tuples(indices, names=["Dataset", "Method", "Target Site"])
-# df = pd.DataFrame(rows, index=indices, columns=["Pearson's Correlation", "KL Divergence", "Jensen Shannon"])
-# inf_oligos = df[~np.isfinite(df["KL Divergence"])].index.get_level_values(2)
-# df = df[~df.index.get_level_values(2).isin(inf_oligos)]
-# df.to_csv(os.environ["OUTPUT_DIR"] + "/Results/Transfer_Learning/mh.tsv", sep="\t")
+indices = pd.MultiIndex.from_tuples(indices, names=["Dataset", "Method", "Target Site"])
+df = pd.DataFrame(rows, index=indices, columns=["Pearson's Correlation", "KL Divergence", "Jensen Shannon"])
+inf_oligos = df[~np.isfinite(df["KL Divergence"])].index.get_level_values(2)
+df = df[~df.index.get_level_values(2).isin(inf_oligos)]
+df.to_csv(os.environ["OUTPUT_DIR"] + "/Results/Transfer_Learning/mh.tsv", sep="\t")
 
-# print("Calculated MH results")
+print("Calculated MH results")
 
-# # collect predicted data into dataframe
-# rows = []
-# indices = []
-# for t in TEST_FILES:
-#     test_f = file_mapping[t]
-#     for method in tqdm(data[t].keys()):
-#         print(method)
-#         if method == "inDelphi": continue
-#         for target_site in common_oligos[t]:
-#             indels = np.array(data[t][method][target_site]["indels"])
-#             deletions = np.array([not is_insertion(x, method) for x in indels])
-#             if method == "CRISPRedict" or "transfer" in method:
-#                 mh = np.array(data[t][method][target_site]["mh"] + ([False] * 21)) 
-#             else:
-#                 mh = np.array(data[t][method][target_site]["mh"])
-#             mhless = np.invert(mh)
-#             mhless_deletions = deletions & mhless
-#             predicted = np.array(data[t][method][target_site]["predicted"])[mhless_deletions].astype(float) # Q
-#             observed = np.array(data[t][method][target_site]["actual"])[mhless_deletions].astype(float) # P
+# collect predicted data into dataframe
+rows = []
+indices = []
+for t in TEST_FILES:
+    test_f = file_mapping[t]
+    for method in tqdm(data[t].keys()):
+        print(method)
+        if method == "inDelphi": continue
+        for target_site in common_oligos[t]:
+            indels = np.array(data[t][method][target_site]["indels"])
+            deletions = np.array([not is_insertion(x, method) for x in indels])
+            if "transfer" in method:
+                mh = np.array(data[t][method][target_site]["mh"] + ([False] * 21)) 
+            else:
+                mh = np.array(data[t][method][target_site]["mh"])
+            mhless = np.invert(mh)
+            mhless_deletions = deletions & mhless
+            predicted = np.array(data[t][method][target_site]["predicted"])[mhless_deletions].astype(float) # Q
+            observed = np.array(data[t][method][target_site]["actual"])[mhless_deletions].astype(float) # P
 
-#             predicted = predicted/sum(predicted)
-#             observed = observed/sum(observed)
+            predicted = predicted/sum(predicted)
+            observed = observed/sum(observed)
 
-#             # then calculate
-#             indices.append((test_f, method, target_site))
-#             correlation = np.corrcoef(predicted, observed)[0,1]
-#             kl_divergence = entropy(observed, predicted)
-#             js = jensenshannon(observed, predicted)
-#             rows.append([correlation, kl_divergence, js])
+            # then calculate
+            indices.append((test_f, method, target_site))
+            correlation = np.corrcoef(predicted, observed)[0,1]
+            kl_divergence = entropy(observed, predicted)
+            js = jensenshannon(observed, predicted)
+            rows.append([correlation, kl_divergence, js])
 
-# indices = pd.MultiIndex.from_tuples(indices, names=["Dataset", "Method", "Target Site"])
-# df = pd.DataFrame(rows, index=indices, columns=["Pearson's Correlation", "KL Divergence", "Jensen Shannon"])
-# inf_oligos = df[~np.isfinite(df["KL Divergence"])].index.get_level_values(2)
-# df = df[~df.index.get_level_values(2).isin(inf_oligos)]
-# df.to_csv(os.environ["OUTPUT_DIR"] + "/Results/Transfer_Learning/mhless.tsv", sep="\t")
+indices = pd.MultiIndex.from_tuples(indices, names=["Dataset", "Method", "Target Site"])
+df = pd.DataFrame(rows, index=indices, columns=["Pearson's Correlation", "KL Divergence", "Jensen Shannon"])
+inf_oligos = df[~np.isfinite(df["KL Divergence"])].index.get_level_values(2)
+df = df[~df.index.get_level_values(2).isin(inf_oligos)]
+df.to_csv(os.environ["OUTPUT_DIR"] + "/Results/Transfer_Learning/mhless.tsv", sep="\t")
 
-# print("Calculated MH Less results")
+print("Calculated MH Less results")
 
-# def is_forecast_insertion(indel):
-#     return indel[:2] == "I1"
+def is_forecast_insertion(indel):
+    return indel[:2] == "I1"
 
-# ins_data = copy.deepcopy(data)
-# # collect predicted data into dataframe
-# rows = []
-# indices = []
-# for t in TEST_FILES:
-#     test_f = file_mapping[t]
-#     for method in [m for m in models if m != "FORECasT"]:
-#         for target_site in common_oligos[t]:
-#             new_predicted = []
-#             new_observed = []
-#             new_indels = []
-#             indels = np.array(data[t][method][target_site]["indels"])
-#             predicted = pd.Series(list(data[t][method][target_site]["predicted"]), index=indels)
-#             observed = pd.Series(list(data[t][method][target_site]["actual"]), index=indels)
+ins_data = copy.deepcopy(data)
+# collect predicted data into dataframe
+rows = []
+indices = []
+for t in TEST_FILES:
+    test_f = file_mapping[t]
+    for method in [m for m in models if m != "FORECasT"]:
+        for target_site in common_oligos[t]:
+            new_predicted = []
+            new_observed = []
+            new_indels = []
+            indels = np.array(data[t][method][target_site]["indels"])
+            predicted = pd.Series(list(data[t][method][target_site]["predicted"]), index=indels)
+            observed = pd.Series(list(data[t][method][target_site]["actual"]), index=indels)
 
-#             predicted = predicted/sum(predicted)
-#             observed = observed/sum(observed)
+            predicted = predicted/sum(predicted)
+            observed = observed/sum(observed)
 
-#             for i in ins_mapping[t][target_site]:
-#                 if i[:2] == "I1":
-#                     new_predicted.append(predicted.loc[ins_mapping[t][target_site][i]].sum())
-#                     new_observed.append(observed.loc[ins_mapping[t][target_site][i]].sum())
-#                     new_indels.append(i)
+            for i in ins_mapping[t][target_site]:
+                if i[:2] == "I1":
+                    new_predicted.append(predicted.loc[ins_mapping[t][target_site][i]].sum())
+                    new_observed.append(observed.loc[ins_mapping[t][target_site][i]].sum())
+                    new_indels.append(i)
 
-#             ins_data[t][method][target_site]["indels"] = np.array(new_indels)
-#             ins_data[t][method][target_site]["predicted"] = np.array(new_predicted)
-#             ins_data[t][method][target_site]["actual"] = np.array(new_observed)
+            ins_data[t][method][target_site]["indels"] = np.array(new_indels)
+            ins_data[t][method][target_site]["predicted"] = np.array(new_predicted)
+            ins_data[t][method][target_site]["actual"] = np.array(new_observed)
 
 
-#     for method in tqdm(data[t].keys()):
-#         print(method)
-#         for target_site in common_oligos[t]:
-#             indels = ins_data[t][method][target_site]["indels"]
-#             insertions = np.array([is_forecast_insertion(x) for x in indels])
-#             predicted = ins_data[t][method][target_site]["predicted"][insertions].astype(float) # Q
-#             observed = ins_data[t][method][target_site]["actual"][insertions].astype(float) # P
+    for method in tqdm(data[t].keys()):
+        print(method)
+        for target_site in common_oligos[t]:
+            indels = ins_data[t][method][target_site]["indels"]
+            insertions = np.array([is_forecast_insertion(x) for x in indels])
+            predicted = ins_data[t][method][target_site]["predicted"][insertions].astype(float) # Q
+            observed = ins_data[t][method][target_site]["actual"][insertions].astype(float) # P
 
-#             predicted = predicted/sum(predicted)
-#             observed = observed/sum(observed)
+            predicted = predicted/sum(predicted)
+            observed = observed/sum(observed)
 
-#             # then calculate
-#             indices.append((test_f, method, target_site))
-#             correlation = np.corrcoef(predicted, observed)[0,1]
-#             kl_divergence = entropy(observed, predicted)
-#             js = jensenshannon(observed, predicted)
-#             rows.append([correlation, kl_divergence, js])
+            # then calculate
+            indices.append((test_f, method, target_site))
+            correlation = np.corrcoef(predicted, observed)[0,1]
+            kl_divergence = entropy(observed, predicted)
+            js = jensenshannon(observed, predicted)
+            rows.append([correlation, kl_divergence, js])
 
-# indices = pd.MultiIndex.from_tuples(indices, names=["Dataset", "Method", "Target Site"])
-# df = pd.DataFrame(rows, index=indices, columns=["Pearson's Correlation", "KL Divergence", "Jensen Shannon"])
-# inf_oligos = df[~np.isfinite(df["KL Divergence"])].index.get_level_values(2)
-# df = df[~df.index.get_level_values(2).isin(inf_oligos)]
-# df.to_csv(os.environ["OUTPUT_DIR"] + "/Results/Transfer_Learning/insertions.tsv", sep="\t")
+indices = pd.MultiIndex.from_tuples(indices, names=["Dataset", "Method", "Target Site"])
+df = pd.DataFrame(rows, index=indices, columns=["Pearson's Correlation", "KL Divergence", "Jensen Shannon"])
+inf_oligos = df[~np.isfinite(df["KL Divergence"])].index.get_level_values(2)
+df = df[~df.index.get_level_values(2).isin(inf_oligos)]
+df.to_csv(os.environ["OUTPUT_DIR"] + "/Results/Transfer_Learning/insertions.tsv", sep="\t")
 
-# print("Calculated insertion results")
+print("Calculated insertion results")
 
-# # collect predicted data into dataframe
-# rows = []
-# indices = []
-# for t in TEST_FILES:
-#     test_f = file_mapping[t]
-#     for method in tqdm(data[t].keys()):
-#         print(method)
-#         p = []
-#         o = []
-#         for target_site in common_oligos[t]:
-#             indels = np.array(data[t][method][target_site]["indels"])
-#             insertions = np.array([is_insertion(x, method) for x in indels])
-#             predicted = np.array(data[t][method][target_site]["predicted"])[insertions].astype(float) # Q
-#             observed = np.array(data[t][method][target_site]["actual"])[insertions].astype(float) # P
+# collect predicted data into dataframe
+print("Starting indel calculations")
+rows = []
+indices = []
+for t in TEST_FILES:
+    print(t)
+    test_f = file_mapping[t]
+    for method in tqdm(data[t].keys()):
+        print(method)
+        p = []
+        o = []
+        for target_site in common_oligos[t]:
+            indels = np.array(data[t][method][target_site]["indels"])
+            insertions = np.array([is_insertion(x, method) for x in indels])
+            predicted = np.array(data[t][method][target_site]["predicted"]).astype(float) # Q
+            observed = np.array(data[t][method][target_site]["actual"]).astype(float) # P
 
-#             p.append(sum(predicted[insertions])/sum(predicted))
-#             o.append(sum(observed[insertions])/sum(observed))
+            p.append(sum(predicted[insertions])/sum(predicted))
+            o.append(sum(observed[insertions])/sum(observed))
 
-#         # then calculate
-#         indices.append((test_f, method))
-#         rows.append([mean_squared_error(p, o)])
+        # then calculate
+        indices.append((test_f, method))
+        rows.append([mean_squared_error(p, o)])
 
-# indices = pd.MultiIndex.from_tuples(indices, names=["Dataset", "Method"])
-# df = pd.DataFrame(rows, index=indices, columns=["Mean Squared Error"])
-# df.to_csv(os.environ["OUTPUT_DIR"] + "/Results/Transfer_Learning/indels.tsv", sep="\t")
+indices = pd.MultiIndex.from_tuples(indices, names=["Dataset", "Method"])
+df = pd.DataFrame(rows, index=indices, columns=["Mean Squared Error"])
+df.to_csv(os.environ["OUTPUT_DIR"] + "/Results/Transfer_Learning/indels.tsv", sep="\t")
 
-# print("Calculated indel results")
+print("Calculated indel results")
 
 
 
@@ -372,26 +367,26 @@ from sklearn.metrics import mean_squared_error
 
 # collect predicted data into dataframe
 def is_1bp_deletion(indel, method):
-    if method in ["CRISPRedict", "Lindel", "FORECasT"] or ("transfer" in method):
+    if method in ["XCRISP", "Lindel", "FORECasT"] or ("transfer" in method):
         return indel.split("+")[-1] == "1"
     if method == "inDelphi":
         return indel.split("+")[-1] == "1" or indel == "DL1"
 
 def is_1bp_insertion(indel, method):
-    if (method in ["CRISPRedict", "Lindel", "inDelphi"]) or ("transfer" in method):
+    if (method in ["XCRISP", "Lindel", "inDelphi"]) or ("transfer" in method):
         return indel in ['1+A', '1+C', '1+G', '1+T']
     if method == 'FORECasT':
         return indel[:2] == "I1"
 
 def is_insertion(indel, method):
-    if (method in ["CRISPRedict", "Lindel", "inDelphi"]) or ("transfer" in method):
+    if (method in ["XCRISP", "Lindel", "inDelphi"]) or ("transfer" in method):
         return indel in common_insertions or indel == "3" or indel == "3+X"
     if method == "FORECasT":
         return indel[0] == "I"
 
 def is_frameshift(indel, method, t = "any"):
     length = None
-    if (method in ["CRISPRedict", "Lindel"]) or ("transfer" in method):
+    if (method in ["XCRISP", "Lindel"]) or ("transfer" in method):
         if is_insertion(indel, method):
             length = int(indel[0]) 
         else:
