@@ -13,4 +13,4 @@ module use /opt/insy/modulefiles
 module load devtoolset
 module load cuda/9.1 cudnn/9.1-7.0.5
 
-./scripts/apptainer-run.sh deletion 5 $1 $2 
+./scripts/apptainer-run.sh deletion 5 $1 $2 $3

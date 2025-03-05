@@ -1,4 +1,4 @@
-# mpiexec -n 2 /home/dsbpredict/miniconda3/envs/xcrisp/bin/python3 -m src.models.XCRISP.deletion_mpi4py 0.05 kld
+# mpiexec -n 5 python3 -m src.models.XCRISP.deletion_mpi4py 0.05 kld
 
 import os, sys
 import pandas as pd
@@ -332,7 +332,6 @@ if __name__ == "__main__":
 
     learning_rate = float(sys.argv[1])
     loss_function_str = sys.argv[2]
-
     l2_weight_decay = float(sys.argv[3])
 
     # load data
