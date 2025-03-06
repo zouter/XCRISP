@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --output=/tudelft.net/staff-umbrella/protonddr/logs/slurm-%j.out
 #SBATCH --error=/tudelft.net/staff-umbrella/protonddr/logs/slurm-%j.err
-#SBATCH --time=48:00:00
+#SBATCH --time=99:00:00
 #SBATCH --ntasks=1
 #SBATCH --tasks-per-node=5
 #SBATCH --cpus-per-task=1
