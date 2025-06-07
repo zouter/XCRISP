@@ -54,3 +54,20 @@ Directory Structure
 
 
 --------
+
+### Creating a X-CRISP environment
+To use X-CRISP and not affect your current work environment, we suggest using an enviroment management system like conda.
+
+```
+conda create --name x-crisp python=3.9
+conda activate x-crisp
+pip install -r requirements.txt
+```
+
+### X-CRISP Usage Example
+See `predict.py` for an example of how to load an X-CRISP model and make a prediction on a new target sequence
+
+### X-CRISP models
+See `./models` directory to see all the pretrained models available for use.
+
+
