@@ -5,7 +5,7 @@ from scipy.stats import rankdata
 from src.models.XCRISP.indels import gen_indels_v3
 
 BASE_FEATURES = ["Size", "Start", "leftEdge", "leftEdgePositive", "rightEdge", "numRepeats", "homologyLength", "leftEdgeMostDownstream", "rightEdgeMostUpstream"]
-EXTRA_HOMOLOGY_FEATURES = ["homologyGCContent", "homologyDistanceRank", "homologyLeftEdgeRank", "homologyRightEdgeRank", "homologyLengthRank", "homologyNearPosition", "homologyFarPosition", "homologyGap"]
+EXTRA_HOMOLOGY_FEATURES = [ "Gap", "homologyGCContent", "homologyDistanceRank", "homologyLeftEdgeRank", "homologyRightEdgeRank", "homologyLengthRank", "homologyNearPosition", "homologyFarPosition", "homologyGap"]
 DELETION_FEATURES = BASE_FEATURES + EXTRA_HOMOLOGY_FEATURES
 
 def onehotencoder(seq):
@@ -61,7 +61,7 @@ def get_features(indels):
     mh_indels["homologyNearPosition"] = mh_indels[["leftEdgePositive", "rightEdge"]].min(axis=1)
     mh_indels["homologyFarPosition"] = mh_indels[["leftEdgePositive", "rightEdge"]].max(axis=1)
     mh_indels["homologyGap"] = mh_indels["rightEdge"] - mh_indels["leftEdge"]
-
+    mh_indels["Gap"] = mh_indels["Size"] - mh_indels["homologyLength"]
 
     indels = indels.join(mh_indels[EXTRA_HOMOLOGY_FEATURES])
     indels[EXTRA_HOMOLOGY_FEATURES] = indels[EXTRA_HOMOLOGY_FEATURES].fillna(0)
