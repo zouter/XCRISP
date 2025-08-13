@@ -253,7 +253,7 @@ def run_experiment(X, y, samples, experiment_name, do_CV=True, learning_rate=0.0
 
 def load_model(model_dir="./models/", loss_fn="kld", learning_rate=0.05):
     model_d = "{}deletion_{}_{}___model.pth".format(model_dir, loss_fn, learning_rate)
-    model = torch.load(model_d, map_location=torch.device('cpu'))
+    model = torch.load(model_d, map_location=torch.device('cpu'), weights_only = False)
     return model
 
 # set global vars

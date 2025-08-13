@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from Bio.SeqUtils import GC
+from Bio.SeqUtils import gc_fraction as GC
 from scipy.stats import rankdata
 from src.models.XCRISP.indels import gen_indels_v3
 
